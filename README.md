@@ -11,5 +11,5 @@ asset packs created by [finalbossblues](https://finalbossblues.itch.io/) to
 color style of [Time Elements](https://itch.io/c/3379349/time-elements-snes-style-game-assets)
 assets from same author, but can be used for any other similar recoloring
 needs. For Time Fantasy to Time Elements recoloring a premade [LUT](recolor/tf_to_e.lut)
-is supplied. For information on available options please check example [config](recolor/config.yaml)
+is supplied. For information on available options please check example [config](recolor/recolor-config.yaml)
 file.

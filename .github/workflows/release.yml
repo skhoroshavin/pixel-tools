@@ -1,0 +1,70 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'  # Trigger only on version tags like v1.0.0
+
+jobs:
+  build:
+    name: Build and Package Binaries
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        os: [linux, darwin, windows]
+        arch: [amd64]
+        include:
+          - os: darwin
+            arch: arm64  # Apple Silicon
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Go
+        uses: actions/setup-go@v4
+        with:
+          go-version: '1.24'
+
+      - name: Build Recolor tool
+        env:
+          GOOS: ${{ matrix.os }}
+          GOARCH: ${{ matrix.arch }}
+        run: |
+          cd recolor
+          EXT=""
+          if [ "${GOOS}" = "windows" ]; then
+            EXT=".exe"
+          fi
+          BINARY_NAME="recolor${EXT}"
+          go build -o ${BINARY_NAME} ./main.go
+          cd ..
+
+      - name: Package pixel tools
+        env:
+          GOOS: ${{ matrix.os }}
+          GOARCH: ${{ matrix.arch }}
+        run: |
+          mkdir -p dist
+          
+          EXT=""
+          if [ "${GOOS}" = "windows" ]; then
+            EXT=".exe"
+          fi
+          FILES="recolor/recolor${EXT} recolor/recolor-config.yaml tf_to_e.lut"
+          OUTPUT_NAME="pixel-tools-${GOOS}-${GOARCH}"
+
+          # Package as zip for Windows, tar.gz otherwise
+          if [ "${GOOS}" = "windows" ]; then
+            zip "dist/${OUTPUT_NAME}.zip" ${FILES} 
+          else
+            tar -czf "dist/${OUTPUT_NAME}.tar.gz" ${FILES}
+          fi
+
+      - name: Upload release assets
+        uses: softprops/action-gh-release@v1
+        with:
+          files: dist/*
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

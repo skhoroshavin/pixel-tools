@@ -8,7 +8,7 @@ import (
 )
 
 func main() {
-	cfg := util.LoadConfig("config.yaml")
+	cfg := util.LoadConfig("recolor-config.yaml")
 
 	// Build LUT
 	l := lut.New()
