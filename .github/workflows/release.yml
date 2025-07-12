@@ -47,13 +47,17 @@ jobs:
           GOARCH: ${{ matrix.arch }}
         run: |
           mkdir -p dist
-          
+
+          OUTPUT_NAME="pixel-tools-${GOOS}-${GOARCH}"
+
           EXT=""
           if [ "${GOOS}" = "windows" ]; then
             EXT=".exe"
           fi
           FILES="recolor/recolor${EXT} recolor/recolor-config.yaml recolor/tf_to_e.lut"
-          OUTPUT_NAME="pixel-tools-${GOOS}-${GOARCH}"
+          if [ "${GOOS}$ = "darwin" ]; then
+            FILES = "${FILES} recolor/recolor.command"
+          fi
 
           # Package as zip for Windows, tar.gz otherwise
           if [ "${GOOS}" = "windows" ]; then
