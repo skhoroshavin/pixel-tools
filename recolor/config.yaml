@@ -1,0 +1,35 @@
+# LUT building options
+reference:
+  # File with color lookup table (LUT) to use. When not specified, empty LUT
+  # will be used, and to have sensible results, one needs to provide a folder
+  # with examples of original and corresponding recolored images.
+  baseLUT: tf_to_e.lut
+  # Folder to look for examples of original and corresponding recolored images,
+  # to build LUT, or to expand it if base LUT was also provided. If the folder
+  # is not specified, then base LUT must be provided, so that recoloring is
+  # still possible.
+  folder: _reference
+  # Suffix of files with original reference images. Needed to be provided only
+  # when the folder with reference images is specified.
+  originalSuffix: _tf.png
+  # Suffix of files with recolored reference images. Needed to be provided only
+  # when the folder with reference images is specified.
+  recoloredSuffix: _e.png
+  # File, into which the resulting LUT (based on base LUT and/or reference
+  # images) will be written. Can be useful, when you want to distribute LUT
+  # built from some set of reference images, instead of images themselves (for
+  # example, because they are not in the public domain). If not specified,
+  # the resulting LUT won't be saved to a file.
+  resultingLUT: updated_tf_to_e.lut
+
+# Recoloring options
+recolor:
+  # Folder to look for images to recolor. If not specified, no processing of
+  # images will be performed.
+  folder: _recolor
+  # Suffix of files to be recolored. Needed to be provided only when the folder
+  # with images to recolor is specified.
+  originalSuffix: _tf.png
+  # Suffix of files to be saved after recolored. Needed to be provided only
+  # when the folder with images to recolor is specified.
+  recoloredSuffix: _e.png
