@@ -12,11 +12,11 @@ jobs:
 
     strategy:
       matrix:
-        os: [linux, mac, windows]
-        arch: [amd64]
-        include:
-          - os: mac
-            arch: arm64  # Apple Silicon
+        os:
+          - windows
+          - linux
+          - mac-intel
+          - mac-m1
 
     steps:
       - name: Checkout code
@@ -30,16 +30,20 @@ jobs:
       - name: Build Recolor tool
         env:
           GOOS: ${{ matrix.os }}
-          GOARCH: ${{ matrix.arch }}
+          GOARCH: amd64
+          EXT: ""
         run: |
           cd recolor
-          if [ "${GOOS}" = "mac" ]; then
+
+          if [ "${GOOS}" = "mac-intel" ]; then
             GOOS="darwin"
-          fi
-          EXT=""
-          if [ "${GOOS}" = "windows" ]; then
+          elif [ "${GOOS}" = "mac-m1" ]; then
+            GOOS="darwin"
+            GOARCH="arm64"
+          elif [ "${GOOS}" = "windows" ]; then
             EXT=".exe"
           fi
+
           BINARY_NAME="recolor${EXT}"
           go build -o ${BINARY_NAME} ./main.go
           cd ..
@@ -47,18 +51,17 @@ jobs:
       - name: Package pixel tools
         env:
           OS: ${{ matrix.os }}
-          ARCH: ${{ matrix.arch }}
+          EXT: ""
         run: |
           mkdir -p dist
 
-          OUTPUT_NAME="pixel-tools-${OS}-${ARCH}"
-          EXT=""
+          OUTPUT_NAME="pixel-tools-${OS}"
           if [ "${OS}" = "windows" ]; then
             EXT=".exe"
           fi
 
           FILES="recolor/recolor${EXT} recolor/recolor-config.yaml recolor/tf_to_e.lut"
-          if [ "${OS}" = "mac" ]; then
+          if [ "${OS}" = "mac-intel" ] || [ "${OS}" = "mac-m1" ]; then
             FILES="${FILES} recolor/recolor.command"
           fi
 
@@ -75,7 +78,8 @@ jobs:
         uses: yeslayla/butler-publish-itchio-action@v1.0.3
         env:
           BUTLER_CREDENTIALS: ${{ secrets.BUTLER_API_KEY }}
-          CHANNEL: ${{ matrix.os }}-${{ matrix.arch }}
+          CHANNEL: ${{ matrix.os }}
           ITCH_GAME: pixel-tools
           ITCH_USER: skhoroshavin
-          PACKAGE: dist/pixel-tools-${{ matrix.os }}-${{ matrix.arch }}.zip
+          PACKAGE: dist/pixel-tools-${{ matrix.os }}.zip
+          VERSION: ${{ github.ref_name }}
