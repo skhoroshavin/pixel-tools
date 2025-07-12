@@ -18,6 +18,7 @@ func main() {
 		l.Load(cfg.Reference.BaseLUT)
 	}
 	if ref.Folder != "" {
+		fmt.Println("Looking for reference image pairs in", ref.Folder)
 		for _, srcFile := range util.FindPairs(ref.Folder, ref.OriginalSuffix, ref.RecoloredSuffix) {
 			dstFile := util.ReplaceSuffix(srcFile, ref.OriginalSuffix, ref.RecoloredSuffix)
 			fmt.Println("Using reference images", filepath.Base(srcFile), "and", filepath.Base(dstFile))
@@ -30,10 +31,11 @@ func main() {
 	}
 
 	// Recolor images
-	rec := cfg.Recolor
-	if rec.Folder != "" {
-		for _, srcFile := range util.FindFiles(rec.Folder, rec.OriginalSuffix) {
-			dstFile := util.ReplaceSuffix(srcFile, rec.OriginalSuffix, rec.RecoloredSuffix)
+	recolor := cfg.Recolor
+	if recolor.Folder != "" {
+		fmt.Println("Looking for images to recolor in", recolor.Folder)
+		for _, srcFile := range util.FindFiles(recolor.Folder, recolor.OriginalSuffix) {
+			dstFile := util.ReplaceSuffix(srcFile, recolor.OriginalSuffix, recolor.RecoloredSuffix)
 			fmt.Println("Applying LUT to image", srcFile, "saving as", dstFile)
 			srcImage := util.ReadImage(srcFile)
 			dstImage := l.ApplyToImage(srcImage)
