@@ -99,12 +99,12 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-#      - name: Release to itch.io
-#        uses: yeslayla/butler-publish-itchio-action@v1.0.3
-#        env:
-#          BUTLER_CREDENTIALS: ${{ secrets.BUTLER_API_KEY }}
-#          CHANNEL: ${{ matrix.os }}
-#          ITCH_GAME: pixel-tools
-#          ITCH_USER: skhoroshavin
-#          PACKAGE: dist/pixel-tools-${{ matrix.os }}.zip
-#          VERSION: ${{ github.ref_name }}
+      - name: Release to itch.io
+        uses: yeslayla/butler-publish-itchio-action@v1.0.3
+        env:
+          BUTLER_CREDENTIALS: ${{ secrets.BUTLER_API_KEY }}
+          CHANNEL: ${{ matrix.os }}
+          ITCH_GAME: pixel-tools
+          ITCH_USER: skhoroshavin
+          PACKAGE: dist/pixel-tools-${{ matrix.os }}.zip
+          VERSION: ${{ github.ref_name }}
