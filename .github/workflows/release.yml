@@ -72,12 +72,12 @@ jobs:
           OS: ${{ matrix.os }}
           EXT: ""
         run: |
-          mkdir -p dist/${OUTPUT_NAME}
-
           OUTPUT_NAME="pixel-tools-${OS}"
           if [ "${OS}" = "windows" ]; then
             EXT=".exe"
           fi
+
+          mkdir -p dist/${OUTPUT_NAME}
 
           cp -v repack/repack${EXT} dist/${OUTPUT_NAME}/
           cp -v recolor/recolor${EXT} dist/${OUTPUT_NAME}/
