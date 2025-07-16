@@ -44,8 +44,7 @@ jobs:
             EXT=".exe"
           fi
 
-          BINARY_NAME="recolor${EXT}"
-          go build -o ${BINARY_NAME} ./main.go
+          go build -v -o recolor${EXT} ./main.go
           cd ..
 
       - name: Build Repack tool
@@ -65,8 +64,7 @@ jobs:
             EXT=".exe"
           fi
 
-          BINARY_NAME="repack{EXT}"
-          go build -o ${BINARY_NAME} ./main.go
+          go build -v -o repack{EXT} ./main.go
           cd ..
 
       - name: Package pixel tools
