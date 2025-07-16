@@ -48,6 +48,27 @@ jobs:
           go build -o ${BINARY_NAME} ./main.go
           cd ..
 
+      - name: Build Repack tool
+        env:
+          GOOS: ${{ matrix.os }}
+          GOARCH: amd64
+          EXT: ""
+        run: |
+          cd repack
+
+          if [ "${GOOS}" = "mac-intel" ]; then
+            GOOS="darwin"
+          elif [ "${GOOS}" = "mac-m1" ]; then
+            GOOS="darwin"
+            GOARCH="arm64"
+          elif [ "${GOOS}" = "windows" ]; then
+            EXT=".exe"
+          fi
+
+          BINARY_NAME="repack{EXT}"
+          go build -o ${BINARY_NAME} ./main.go
+          cd ..
+
       - name: Package pixel tools
         env:
           OS: ${{ matrix.os }}
@@ -64,6 +85,7 @@ jobs:
           if [ "${OS}" = "mac-intel" ] || [ "${OS}" = "mac-m1" ]; then
             FILES="${FILES} recolor/recolor.command"
           fi
+          FILES="${FILES} repack/repack${EXT}"
 
           zip "dist/${OUTPUT_NAME}.zip" ${FILES}
 
