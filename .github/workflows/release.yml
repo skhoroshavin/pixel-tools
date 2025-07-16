@@ -44,53 +44,57 @@ jobs:
             EXT=".exe"
           fi
 
-          go build -v -o repack{EXT} ./main.go
+          go build -o repack${EXT} ./main.go
           cd ..
 
-#      - name: Build Recolor tool
-#        env:
-#          GOOS: ${{ matrix.os }}
-#          GOARCH: amd64
-#          EXT: ""
-#        run: |
-#          cd recolor
-#
-#          if [ "${GOOS}" = "mac-intel" ]; then
-#            GOOS="darwin"
-#          elif [ "${GOOS}" = "mac-m1" ]; then
-#            GOOS="darwin"
-#            GOARCH="arm64"
-#          elif [ "${GOOS}" = "windows" ]; then
-#            EXT=".exe"
-#          fi
-#
-#          go build -v -o recolor${EXT} ./main.go
-#          cd ..
+      - name: Build Recolor tool
+        env:
+          GOOS: ${{ matrix.os }}
+          GOARCH: amd64
+          EXT: ""
+        run: |
+          cd recolor
+
+          if [ "${GOOS}" = "mac-intel" ]; then
+            GOOS="darwin"
+          elif [ "${GOOS}" = "mac-m1" ]; then
+            GOOS="darwin"
+            GOARCH="arm64"
+          elif [ "${GOOS}" = "windows" ]; then
+            EXT=".exe"
+          fi
+
+          go build -o recolor${EXT} ./main.go
+          cd ..
 
       - name: Package pixel tools
         env:
           OS: ${{ matrix.os }}
           EXT: ""
         run: |
-          mkdir -p dist
+          mkdir -p dist/${OUTPUT_NAME}
 
           OUTPUT_NAME="pixel-tools-${OS}"
           if [ "${OS}" = "windows" ]; then
             EXT=".exe"
           fi
 
-          FILES="repack/repack${EXT}"
-#          FILES="repack/repack${EXT} recolor/recolor${EXT} recolor/recolor-config.yaml recolor/tf_to_e.lut"
-#          if [ "${OS}" = "mac-intel" ] || [ "${OS}" = "mac-m1" ]; then
-#            FILES="${FILES} recolor/recolor.command"
-#          fi
+          cp repack/repack${EXT} dist/${OUTPUT_NAME}
+          cp recolor/recolor${EXT} dist/${OUTPUT_NAME}
+          cp recolor/recolor-config.yaml dist/${OUTPUT_NAME}
+          cp recolor/tf_to_e.lut dist/${OUTPUT_NAME}
+          if [ "${OS}" = "mac-intel" ] || [ "${OS}" = "mac-m1" ]; then
+            cp recolor/recolor.command dist/${OUTPUT_NAME}
+          fi
 
-          zip "dist/${OUTPUT_NAME}.zip" ${FILES}
+          cd dist
+          zip -r ${OUTPUT_NAME}.zip ${OUTPUT_NAME}
+          cd ..
 
       - name: Release to Github
         uses: softprops/action-gh-release@v1
         with:
-          files: dist/*
+          files: dist/pixel-tools-${{ matrix.os }}.zip
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
