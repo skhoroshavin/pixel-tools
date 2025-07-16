@@ -1,19 +1,6 @@
 # pixel-tools
 This is a set of utilities useful for pixel art
 
-## [Recolor](recolor)
-
-A simple CLI tool that can build color lookup table (LUT) based on set of
-original and their corresponding recolored images, and then apply it to another
-set of images in original style to recolor them. This was originally developed
-to convert tilesets from [Time Fantasy](https://itch.io/c/201945/time-fantasy-rpg-asset-packs)
-asset packs created by [finalbossblues](https://finalbossblues.itch.io/) to
-color style of [Time Elements](https://itch.io/c/3379349/time-elements-snes-style-game-assets)
-assets from same author, but can be used for any other similar recoloring
-needs. For Time Fantasy to Time Elements recoloring a premade [LUT](recolor/tf_to_e.lut)
-is supplied. For information on available options please check example [config](recolor/recolor-config.yaml)
-file.
-
 ## [Repack](repack)
 
 A CLI tool for repacking and optimizing Tiled map files (*.tmx) and their
@@ -28,3 +15,22 @@ tilesets containing only the tiles that are actually used in the maps.
 - Supports PNG image format for tilesets
 - Handles both embedded and external tilesets
 - All tilesets used in a map should have the same tile size
+
+
+## [Recolor](recolor)
+
+A simple CLI tool for color conversion between images using a color lookup table (LUT).
+It has two main functions:
+
+1. Building a LUT by analyzing pairs of source and target images to learn color mappings
+2. Applying the LUT to convert new images from source to target color style
+
+The tool was originally developed to convert [Time Fantasy](https://itch.io/c/201945/time-fantasy-rpg-asset-packs)
+tilesets to match the SNES-style colors of [Time Elements](https://itch.io/c/3379349/time-elements-snes-style-game-assets)
+assets (both created by [finalbossblues](https://finalbossblues.itch.io/)).
+However, it can be used for any image color conversion where you have example
+pairs showing the desired color mapping.
+
+A pre-built [LUT file](recolor/tf_to_e.lut) is included for Time Fantasy to
+Time Elements conversion. Please see the example [config file](recolor/recolor-config.yaml)
+for details on all available options.
