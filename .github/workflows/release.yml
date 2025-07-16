@@ -79,16 +79,17 @@ jobs:
             EXT=".exe"
           fi
 
-          cp repack/repack${EXT} dist/${OUTPUT_NAME}
-          cp recolor/recolor${EXT} dist/${OUTPUT_NAME}
-          cp recolor/recolor-config.yaml dist/${OUTPUT_NAME}
-          cp recolor/tf_to_e.lut dist/${OUTPUT_NAME}
+          cp -v repack/repack${EXT} dist/${OUTPUT_NAME}/
+          cp -v recolor/recolor${EXT} dist/${OUTPUT_NAME}/
+          cp -v recolor/recolor-config.yaml dist/${OUTPUT_NAME}/
+          cp -v recolor/tf_to_e.lut dist/${OUTPUT_NAME}/
           if [ "${OS}" = "mac-intel" ] || [ "${OS}" = "mac-m1" ]; then
-            cp recolor/recolor.command dist/${OUTPUT_NAME}
+            cp -v recolor/recolor.command dist/${OUTPUT_NAME}/
           fi
 
           cd dist
-          zip -r ${OUTPUT_NAME}.zip ${OUTPUT_NAME}
+          find .
+          zip -r ${OUTPUT_NAME}.zip ${OUTPUT_NAME}/
           cd ..
 
       - name: Release to Github
