@@ -3,9 +3,10 @@ This is a set of utilities useful for pixel art
 
 ## [Repack](repack)
 
-A CLI tool for repacking and optimizing Tiled map files (*.tmx) and their
-associated tilesets. The tool analyzes tile usage in maps and creates optimized
-tilesets containing only the tiles that are actually used in the maps.
+A CLI tool for repacking and optimizing [Tiled](https://www.mapeditor.org)
+map files (*.tmx) and their associated tilesets. The tool analyzes tile usage
+in maps and creates optimized tilesets containing only the tiles that are
+actually used in the maps.
 
 ### Features:
 
@@ -19,8 +20,8 @@ tilesets containing only the tiles that are actually used in the maps.
 
 ## [Recolor](recolor)
 
-A simple CLI tool for color conversion between images using a color lookup table (LUT).
-It has two main functions:
+A simple CLI tool for color conversion between images using a color lookup
+table (LUT). It has two main functions:
 
 1. Building a LUT by analyzing pairs of source and target images to learn color mappings
 2. Applying the LUT to convert new images from source to target color style
