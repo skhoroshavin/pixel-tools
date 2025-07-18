@@ -24,5 +24,5 @@ func main() {
 	dst := tmj.ConvertFromTMX(src, outputName)
 
 	src.SaveImages(outputDir)
-	dst.Save(filepath.Join(outputDir, outputName+".json"))
+	dst.Save(filepath.Join(outputDir, outputName+".tmj"))
 }
