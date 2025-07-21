@@ -8,11 +8,11 @@ import (
 )
 
 type Layer struct {
-	Name       string     `xml:"name,attr"`
-	Width      int        `xml:"width,attr"`
-	Height     int        `xml:"height,attr"`
-	Data       LayerData  `xml:"data"`
-	Properties []Property `xml:"properties>property"`
+	Name       string         `xml:"name,attr"`
+	Width      int            `xml:"width,attr"`
+	Height     int            `xml:"height,attr"`
+	Data       LayerData      `xml:"data"`
+	Properties []tsx.Property `xml:"properties>property"`
 }
 
 type LayerData struct {

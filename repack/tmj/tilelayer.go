@@ -1,16 +1,34 @@
 package tmj
 
-import "repack/tsx"
+import (
+	"repack/tmx"
+	"repack/tsx"
+)
 
 type TileLayer struct {
-	Data    []tsx.GlobalTileID `json:"data"`
-	Height  int                `json:"height"`
 	ID      int                `json:"id"`
 	Name    string             `json:"name"`
-	Opacity float64            `json:"opacity"`
 	Type    string             `json:"type"` // "tilelayer"
-	Visible bool               `json:"visible"`
-	Width   int                `json:"width"`
 	X       int                `json:"x"`
 	Y       int                `json:"y"`
+	Width   int                `json:"width"`
+	Height  int                `json:"height"`
+	Opacity float64            `json:"opacity"`
+	Visible bool               `json:"visible"`
+	Data    []tsx.GlobalTileID `json:"data"`
+}
+
+func convertTileLayer(layer *tmx.Layer, layerID int) TileLayer {
+	return TileLayer{
+		ID:      layerID,
+		Name:    layer.Name,
+		Type:    "tilelayer",
+		X:       0,
+		Y:       0,
+		Width:   layer.Width,
+		Height:  layer.Height,
+		Opacity: 1,
+		Visible: true,
+		Data:    layer.Data.Decoded,
+	}
 }

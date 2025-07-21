@@ -7,17 +7,17 @@ import (
 )
 
 type Map struct {
-	Version      string         `xml:"version,attr"`
-	Orientation  string         `xml:"orientation,attr"`
-	RenderOrder  string         `xml:"renderorder,attr"`
-	Width        int            `xml:"width,attr"`
-	Height       int            `xml:"height,attr"`
-	TileWidth    int            `xml:"tilewidth,attr"`
-	TileHeight   int            `xml:"tileheight,attr"`
-	Tilesets     []*tsx.Tileset `xml:"tileset"`
-	Layers       []*Layer       `xml:"layer"`
-	ObjectGroups []ObjectGroup  `xml:"objectgroup"`
-	Properties   []Property     `xml:"properties>property"`
+	Version      string            `xml:"version,attr"`
+	Orientation  string            `xml:"orientation,attr"`
+	RenderOrder  string            `xml:"renderorder,attr"`
+	Width        int               `xml:"width,attr"`
+	Height       int               `xml:"height,attr"`
+	TileWidth    int               `xml:"tilewidth,attr"`
+	TileHeight   int               `xml:"tileheight,attr"`
+	Tilesets     []*tsx.Tileset    `xml:"tileset"`
+	Layers       []*Layer          `xml:"layer"`
+	ObjectGroups []tsx.ObjectGroup `xml:"objectgroup"`
+	Properties   []tsx.Property    `xml:"properties>property"`
 }
 
 func (m *Map) Repack(name string) {

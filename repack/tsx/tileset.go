@@ -19,9 +19,11 @@ type Tileset struct {
 }
 
 type Tile struct {
-	ID         LocalTileID `xml:"id,attr"`
-	Animation  []Frame     `xml:"animation>frame"`
-	Properties []Property  `xml:"properties>property"`
+	ID          LocalTileID `xml:"id,attr"`
+	Type        string      `xml:"type,attr"`
+	Animation   []Frame     `xml:"animation>frame"`
+	Properties  []Property  `xml:"properties>property"`
+	ObjectGroup ObjectGroup `xml:"objectgroup"`
 
 	Tileset *Tileset `xml:"-"`
 }

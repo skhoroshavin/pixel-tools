@@ -21,7 +21,7 @@ func main() {
 
 	src := tmx.Load(inputTmx)
 	src.Repack(outputName)
-	dst := tmj.ConvertFromTMX(src, outputName)
+	dst := tmj.ConvertFromTMX(src)
 
 	src.SaveImages(outputDir)
 	dst.Save(filepath.Join(outputDir, outputName+".tmj"))

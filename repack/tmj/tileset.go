@@ -15,19 +15,17 @@ type Tileset struct {
 	Tiles       []Tile           `json:"tiles,omitempty"`
 }
 
-type Tile struct {
-	ID         tsx.LocalTileID `json:"id"`
-	Animation  []Frame         `json:"animation,omitempty"`
-	Properties []Property      `json:"properties,omitempty"`
-}
-
-type Frame struct {
-	TileID   tsx.LocalTileID `json:"tileid"`
-	Duration int             `json:"duration"`
-}
-
-type Property struct {
-	Name  string `json:"name"`
-	Type  string `json:"type"`
-	Value string `json:"value"`
+func convertTileset(ts *tsx.Tileset) Tileset {
+	return Tileset{
+		FirstGID:    ts.FirstGID,
+		Name:        ts.Name,
+		TileWidth:   ts.TileWidth,
+		TileHeight:  ts.TileHeight,
+		TileCount:   ts.TileCount,
+		Columns:     ts.Columns,
+		Image:       ts.Image.Source,
+		ImageWidth:  ts.Image.Width,
+		ImageHeight: ts.Image.Height,
+		Tiles:       convertTiles(ts.Tiles),
+	}
 }

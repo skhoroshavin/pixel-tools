@@ -1,6 +1,7 @@
-package tmx
+package tsx
 
 type ObjectGroup struct {
+	ID         int        `xml:"id,attr"`
 	Name       string     `xml:"name,attr"`
 	Objects    []Object   `xml:"object"`
 	Properties []Property `xml:"properties>property"`

@@ -87,9 +87,11 @@ func (r *Repacker) BuildNewTileset(name string) *Tileset {
 
 	for i, tile := range r.tilesToRepack {
 		repackedTile := &Tile{
-			ID:         LocalTileID(i),
-			Properties: tile.Properties,
-			Tileset:    repackedTileset,
+			ID:          LocalTileID(i),
+			Type:        tile.Type,
+			ObjectGroup: tile.ObjectGroup,
+			Properties:  tile.Properties,
+			Tileset:     repackedTileset,
 		}
 		for _, frame := range tile.Animation {
 			animTileID := tile.Tileset.GlobalTileID(frame.TileID)
