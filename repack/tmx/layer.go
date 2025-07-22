@@ -9,6 +9,7 @@ import (
 
 type Layer struct {
 	Name       string         `xml:"name,attr"`
+	Class      string         `xml:"class,attr"`
 	Width      int            `xml:"width,attr"`
 	Height     int            `xml:"height,attr"`
 	Data       LayerData      `xml:"data"`

@@ -16,5 +16,10 @@ type Object struct {
 	Width      float64    `xml:"width,attr"`
 	Height     float64    `xml:"height,attr"`
 	Rotation   float64    `xml:"rotation,attr"`
+	Polygon    Polygon    `xml:"polygon"`
 	Properties []Property `xml:"properties>property"`
+}
+
+type Polygon struct {
+	Points string `xml:"points,attr"`
 }
