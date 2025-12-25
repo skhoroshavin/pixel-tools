@@ -23,22 +23,22 @@ type Map struct {
 func (m *Map) Repack(name string) {
 	repacker := tsx.NewRepacker(m.Tilesets)
 	for _, layer := range m.Layers {
-		for _, tileID := range layer.Data.Decoded {
-			if tileID == 0 {
-				continue
+		for i, tileID := range layer.Data.Decoded {
+			if tileID != 0 {
+				layer.Data.Decoded[i] = repacker.UseTileID(tileID)
 			}
-			repacker.UseTileID(tileID)
+		}
+	}
+
+	for _, objectGroup := range m.ObjectGroups {
+		for i, obj := range objectGroup.Objects {
+			if obj.GID != 0 {
+				objectGroup.Objects[i].GID = repacker.UseTileID(obj.GID)
+			}
 		}
 	}
 
 	m.Tilesets = []*tsx.Tileset{repacker.BuildNewTileset(name)}
-	for i, layer := range m.Layers {
-		newData := make([]tsx.GlobalTileID, len(layer.Data.Decoded))
-		for j, tileID := range layer.Data.Decoded {
-			newData[j] = repacker.RepackedTileID(tileID)
-		}
-		m.Layers[i].Data.Decoded = newData
-	}
 }
 
 func (m *Map) SaveImages(path string) {

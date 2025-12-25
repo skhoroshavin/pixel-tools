@@ -29,9 +29,9 @@ type Repacker struct {
 	repackedTileID map[GlobalTileID]GlobalTileID
 }
 
-func (r *Repacker) UseTileID(tileID GlobalTileID) {
-	if _, ok := r.repackedTileID[tileID]; ok {
-		return
+func (r *Repacker) UseTileID(tileID GlobalTileID) GlobalTileID {
+	if repackedTileID, ok := r.repackedTileID[tileID]; ok {
+		return repackedTileID
 	}
 
 	var tile *Tile
@@ -46,7 +46,8 @@ func (r *Repacker) UseTileID(tileID GlobalTileID) {
 	}
 
 	r.tilesToRepack = append(r.tilesToRepack, tile)
-	r.repackedTileID[tileID] = GlobalTileID(len(r.tilesToRepack))
+	repackedTileID := GlobalTileID(len(r.tilesToRepack))
+	r.repackedTileID[tileID] = repackedTileID
 
 	for _, anim := range tile.Animation {
 		animTileID := tile.Tileset.GlobalTileID(anim.TileID)
@@ -60,6 +61,8 @@ func (r *Repacker) UseTileID(tileID GlobalTileID) {
 		r.tilesToRepack = append(r.tilesToRepack, animTile)
 		r.repackedTileID[animTileID] = GlobalTileID(len(r.tilesToRepack))
 	}
+
+	return repackedTileID
 }
 
 func (r *Repacker) BuildNewTileset(name string) *Tileset {

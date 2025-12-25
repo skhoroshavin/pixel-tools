@@ -8,15 +8,16 @@ import (
 )
 
 type Object struct {
-	Name       string     `json:"name"`
-	Type       string     `json:"type"`
-	X          float64    `json:"x"`
-	Y          float64    `json:"y"`
-	Width      float64    `json:"width"`
-	Height     float64    `json:"height"`
-	Rotation   float64    `json:"rotation"`
-	Polygon    []Point    `json:"polygon,omitempty"`
-	Properties []Property `json:"properties,omitempty"`
+	Name       string           `json:"name"`
+	Type       string           `json:"type"`
+	X          float64          `json:"x"`
+	Y          float64          `json:"y"`
+	Width      float64          `json:"width"`
+	Height     float64          `json:"height"`
+	Rotation   float64          `json:"rotation"`
+	GID        tsx.GlobalTileID `json:"gid,omitempty"`
+	Polygon    []Point          `json:"polygon,omitempty"`
+	Properties []Property       `json:"properties,omitempty"`
 }
 
 type Point struct {
@@ -33,6 +34,7 @@ func convertObject(obj tsx.Object) Object {
 		Width:      obj.Width,
 		Height:     obj.Height,
 		Rotation:   obj.Rotation,
+		GID:        obj.GID,
 		Polygon:    convertPolygon(obj.Polygon),
 		Properties: convertProperties(obj.Properties),
 	}

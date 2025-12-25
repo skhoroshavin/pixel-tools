@@ -21,7 +21,7 @@ type Map struct {
 }
 
 func (m *Map) Save(path string) {
-	raw, err := json.Marshal(m)
+	raw, err := json.MarshalIndent(m, "", "  ")
 	if err != nil {
 		log.Fatalf("Failed to encode map: %v", err)
 	}
