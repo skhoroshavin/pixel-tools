@@ -100,7 +100,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Release to itch.io
-        uses: yeslayla/butler-publish-itchio-action@v1.0.3
+        uses: yeslayla/butler-publish-itchio-action@eed59bf1db9dfeac10b91f83ec783b095ccdca1b
         env:
           BUTLER_CREDENTIALS: ${{ secrets.BUTLER_API_KEY }}
           CHANNEL: ${{ matrix.os }}
