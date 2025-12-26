@@ -147,40 +147,18 @@ func (a *Atlas) packSprite(sprite *Sprite) {
 	pt := a.skyline[idx]
 	sprite.Frame.X = pt.X
 	sprite.Frame.Y = pt.Y
-
-	if idx == len(a.skyline)-1 {
-		a.skyline = append(a.skyline, Point{X: pt.X + sprite.Frame.W, Y: 0})
-	} else {
-		curY := a.skyline[idx].Y
-		nextIdx := idx + 1
-		nextPt := a.skyline[nextIdx]
-		for {
-			if nextPt.X >= pt.X+sprite.Frame.W {
-				a.insertPoint(nextIdx, Point{X: pt.X + sprite.Frame.W, Y: curY})
-				break
-			}
-
-			a.removePoint(nextIdx)
-			curY = nextPt.Y
-			if nextIdx < len(a.skyline) {
-				nextPt = a.skyline[nextIdx]
-			} else {
-				nextPt = Point{X: a.size, Y: 0}
-			}
-		}
-	}
-	a.skyline[idx] = Point{X: pt.X, Y: pt.Y + sprite.Frame.H}
+	a.insertFrame(idx, sprite.Frame)
 }
 
 func (a *Atlas) findBestPosition(sprite *Sprite) int {
 	bestIdx := -1
 	var bestPoint Point
 	for i, pt := range a.skyline {
-		// If we don't fit - skip
-		if (pt.Y+sprite.Frame.H > a.size) || (pt.X+sprite.Frame.W > a.size) {
+		// If we don't fit into frame - skip
+		if !a.isFitting(i, sprite.Frame) {
 			continue
 		}
-		// If we already have candidate best point - compare with it and discard if we are not lower
+		// If we already have candidate best point - compare with it and discard if we are not better
 		if bestIdx != -1 && bestPoint.Y <= pt.Y {
 			continue
 		}
@@ -194,6 +172,62 @@ func (a *Atlas) findBestPosition(sprite *Sprite) int {
 	// Otherwise double atlas size and try again
 	a.size *= 2
 	return a.findBestPosition(sprite)
+}
+
+func (a *Atlas) isFitting(idx int, frame Rect) bool {
+	base := a.skyline[idx]
+	// Return false if we don't fit to frame
+	if (base.X+frame.W > a.size) || (base.Y+frame.H > a.size) {
+		return false
+	}
+	// Check whether we overlap with the next skyline points
+	for i := idx + 1; i < len(a.skyline); i++ {
+		pt := a.skyline[i]
+		// Point is outside the sprite - we can stop iterating, safely assuming that sprite fits
+		if pt.X >= base.X+frame.W {
+			return true
+		}
+		// Point is inside the sprite - we can stop iterating, safely assuming that sprite doesn't fit
+		if pt.Y > base.Y {
+			return false
+		}
+	}
+	return true
+}
+
+func (a *Atlas) insertFrame(idx int, frame Rect) {
+	pt := a.skyline[idx]
+	if idx == len(a.skyline)-1 {
+		a.skyline = append(a.skyline, Point{X: pt.X + frame.W, Y: 0})
+	} else {
+		curY := a.skyline[idx].Y
+		nextIdx := idx + 1
+		nextPt := a.skyline[nextIdx]
+		for {
+			if nextPt.X >= pt.X+frame.W {
+				a.insertPoint(nextIdx, Point{X: pt.X + frame.W, Y: curY})
+				break
+			}
+
+			a.removePoint(nextIdx)
+			curY = nextPt.Y
+			if nextIdx < len(a.skyline) {
+				nextPt = a.skyline[nextIdx]
+			} else {
+				nextPt = Point{X: a.size, Y: 0}
+			}
+		}
+	}
+	a.skyline[idx] = Point{X: pt.X, Y: pt.Y + frame.H}
+
+	for i := 0; i < len(a.skyline)-1; i++ {
+		cur := a.skyline[i]
+		next := a.skyline[i+1]
+		if cur.Y == next.Y {
+			a.removePoint(i + 1)
+			i--
+		}
+	}
 }
 
 func (a *Atlas) insertPoint(idx int, pt Point) {
