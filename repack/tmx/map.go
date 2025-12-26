@@ -19,17 +19,19 @@ type Map struct {
 	Layers       []*Layer          `xml:"layer"`
 	ObjectGroups []tsx.ObjectGroup `xml:"objectgroup"`
 	Properties   []tsx.Property    `xml:"properties>property"`
+
+	atlas *atlas.Atlas
 }
 
 func (m *Map) Repack(name string) {
-	objPacker := atlas.New(m.Tilesets)
 	for _, objectGroup := range m.ObjectGroups {
 		for i, obj := range objectGroup.Objects {
 			if obj.GID != 0 {
-				objectGroup.Objects[i].GID = objPacker.UseTileID(obj.GID)
+				objectGroup.Objects[i].GID = m.atlas.UseTileID(obj.GID)
 			}
 		}
 	}
+	m.atlas.Pack()
 
 	tilePacker := tsx.NewPacker(m.Tilesets)
 	for _, layer := range m.Layers {
@@ -39,12 +41,15 @@ func (m *Map) Repack(name string) {
 			}
 		}
 	}
-
 	m.Tilesets = []*tsx.Tileset{tilePacker.BuildNewTileset(name)}
 }
 
-func (m *Map) SaveImages(path string) {
+func (m *Map) SaveTiles(path string) {
 	for _, tileset := range m.Tilesets {
 		util.WriteImage(tileset.Image.Data, filepath.Join(path, tileset.Image.Source))
 	}
+}
+
+func (m *Map) SaveSprites(baseName string) {
+	m.atlas.Save(baseName)
 }

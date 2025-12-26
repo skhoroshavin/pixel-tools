@@ -5,6 +5,7 @@ import (
 	"log"
 	"os"
 	"path/filepath"
+	"repack/atlas"
 	"repack/tsx"
 )
 
@@ -34,5 +35,6 @@ func Load(path string) *Map {
 		}
 	}
 
+	res.atlas = atlas.New(res.Tilesets)
 	return &res
 }
