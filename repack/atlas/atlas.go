@@ -66,6 +66,11 @@ func (a *Atlas) UseTileID(tileID tsx.GlobalTileID) tsx.GlobalTileID {
 			H: tile.Tileset.TileHeight,
 		},
 	})
+
+	for _, anim := range tile.Animation {
+		a.UseTileID(tile.Tileset.GlobalTileID(anim.TileID))
+	}
+
 	return repackedTileID
 }
 
@@ -76,13 +81,13 @@ func (a *Atlas) Pack() {
 		ih := a.sprites[i].Frame.H
 		jw := a.sprites[j].Frame.W
 		jh := a.sprites[j].Frame.H
-		if iw*ih < jw*jh {
+		if iw*ih > jw*jh {
 			return true
 		}
-		if iw*ih > jw*jh {
+		if iw*ih < jw*jh {
 			return false
 		}
-		return iw < ih
+		return iw > ih
 	})
 
 	for _, sprite := range a.sprites {
@@ -116,8 +121,8 @@ func (a *Atlas) Save(baseName string) {
 		dstX := sprite.Frame.X
 		dstY := sprite.Frame.Y
 
-		draw.Draw(img, image.Rect(srcX, srcY, srcX+w, srcY+h),
-			srcTile.Tileset.Image.Data, image.Pt(dstX, dstY), draw.Src)
+		draw.Draw(img, image.Rect(dstX, dstY, dstX+w, dstY+h),
+			srcTile.Tileset.Image.Data, image.Pt(srcX, srcY), draw.Src)
 
 		data.Frames = append(data.Frames, Frame{
 			Filename: fmt.Sprintf("%d", sprite.ID),
@@ -143,15 +148,28 @@ func (a *Atlas) packSprite(sprite *Sprite) {
 	sprite.Frame.X = pt.X
 	sprite.Frame.Y = pt.Y
 
-	a.skyline[idx] = Point{X: pt.X, Y: pt.Y + sprite.Frame.H}
-	a.insertPoint(idx+1, Point{X: pt.X + sprite.Frame.W, Y: pt.Y + sprite.Frame.H})
-	nextIdx := idx + 2
-	for {
-		if nextIdx >= len(a.skyline) || a.skyline[nextIdx].X >= pt.X+sprite.Frame.W {
-			break
+	if idx == len(a.skyline)-1 {
+		a.skyline = append(a.skyline, Point{X: pt.X + sprite.Frame.W, Y: 0})
+	} else {
+		curY := a.skyline[idx].Y
+		nextIdx := idx + 1
+		nextPt := a.skyline[nextIdx]
+		for {
+			if nextPt.X >= pt.X+sprite.Frame.W {
+				a.insertPoint(nextIdx, Point{X: pt.X + sprite.Frame.W, Y: curY})
+				break
+			}
+
+			a.removePoint(nextIdx)
+			curY = nextPt.Y
+			if nextIdx < len(a.skyline) {
+				nextPt = a.skyline[nextIdx]
+			} else {
+				nextPt = Point{X: a.size, Y: 0}
+			}
 		}
-		a.removePoint(nextIdx)
 	}
+	a.skyline[idx] = Point{X: pt.X, Y: pt.Y + sprite.Frame.H}
 }
 
 func (a *Atlas) findBestPosition(sprite *Sprite) int {
