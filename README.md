@@ -8,15 +8,57 @@ map files (*.tmx) and their associated tilesets. The tool analyzes tile usage
 in maps and creates optimized tilesets containing only the tiles that are
 actually used in the maps.
 
-### Features:
+### Features
 
 - Analyzes TMX map files to identify used tiles
 - Creates optimized tilesets by removing unused tiles
 - Preserves tile properties and object layers
 - Supports PNG image format for tilesets
 - Handles both embedded and external tilesets
-- All tilesets used in a map should have the same tile size
+- Packs differently-sized object layer tiles into separate atlas
+- Outputs JSON tilemaps and sprite atlases that integrate seamlessly with phaser.io engine
 
+### Usage
+
+```bash
+repack <source-folder> <destination-folder>
+```
+
+This command will:
+1. Recursively scan all `.tmx` files in the source folder
+2. Generate optimized output in the destination folder:
+    - JSON tilemaps (compatible with Phaser.io engine)
+    - Optimized sprite atlases
+    - Compressed PNG files with only used tiles
+
+Example input and output structures:
+```
+source/
+├── episode1/
+│ ├── level1.tmx
+│ └── level2.tmx
+├── episode2/
+│ └── level1.tmx
+└── tilesets/
+  ├── terrain.png
+  └── trees.png
+
+destination/
+├── episode1/
+│ ├── level1.tmj
+│ ├── level1.png
+│ ├── level1-sprites.json
+│ ├── level1-sprites.png
+│ ├── level2.tmj
+│ ├── level2.png
+│ ├── level2-sprites.json
+│ └── level2-sprites.png
+└── episode2/
+  ├── level1.tmj
+  ├── level1.png
+  ├── level1-sprites.json
+  └── level1-sprites.png
+```
 
 ## [Recolor](recolor)
 
@@ -35,3 +77,11 @@ pairs showing the desired color mapping.
 A pre-built [LUT file](recolor/tf_to_e.lut) is included for Time Fantasy to
 Time Elements conversion. Please see the example [config file](recolor/recolor-config.yaml)
 for details on all available options.
+
+## Terms of use
+
+All tools are free to download and use for any purpose, including commercial
+projects. Full source code is available on GitHub under GPL3 license, which
+means you're also free to modify and redistribute these tools - the main
+restriction is that if (and only if) you're redistributing modified versions,
+you must also provide source code of your modifications to your customers.
