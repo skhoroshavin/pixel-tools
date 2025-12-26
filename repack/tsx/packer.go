@@ -10,16 +10,22 @@ func NewPacker(srcTilesets []*Tileset) *Packer {
 		log.Fatalf("At least one source tileset is required for repacking")
 	}
 
+	minTileWidth := srcTilesets[0].TileWidth
+	minTileHeight := srcTilesets[0].TileHeight
 	for _, ts := range srcTilesets[1:] {
-		if ts.TileWidth != srcTilesets[0].TileWidth ||
-			ts.TileHeight != srcTilesets[0].TileHeight {
-			log.Fatalf("All source tilesets must have the same tile size")
+		if ts.TileWidth < minTileWidth {
+			minTileWidth = ts.TileWidth
+		}
+		if ts.TileHeight < minTileHeight {
+			minTileHeight = ts.TileHeight
 		}
 	}
 
 	return &Packer{
 		srcTilesets:    srcTilesets,
 		repackedTileID: make(map[GlobalTileID]GlobalTileID),
+		tileWidth:      minTileWidth,
+		tileHeight:     minTileHeight,
 	}
 }
 
@@ -27,6 +33,8 @@ type Packer struct {
 	srcTilesets    []*Tileset
 	tilesToRepack  []*Tile
 	repackedTileID map[GlobalTileID]GlobalTileID
+	tileWidth      int
+	tileHeight     int
 }
 
 func (p *Packer) UseTileID(tileID GlobalTileID) GlobalTileID {
@@ -66,18 +74,16 @@ func (p *Packer) UseTileID(tileID GlobalTileID) GlobalTileID {
 }
 
 func (p *Packer) BuildNewTileset(name string) *Tileset {
-	tileset := p.srcTilesets[0]
-
 	tileCount := len(p.tilesToRepack)
 	imageColumns := nextPowerOfTwoSquare(tileCount)
-	imageWidth := tileset.TileWidth * imageColumns
-	imageHeight := tileset.TileHeight * imageColumns
+	imageWidth := p.tileWidth * imageColumns
+	imageHeight := p.tileHeight * imageColumns
 
 	repackedTileset := &Tileset{
 		FirstGID:   1,
 		Name:       name,
-		TileWidth:  tileset.TileWidth,
-		TileHeight: tileset.TileHeight,
+		TileWidth:  p.tileWidth,
+		TileHeight: p.tileHeight,
 		TileCount:  tileCount,
 		Columns:    imageColumns,
 		Image: Image{
@@ -89,6 +95,10 @@ func (p *Packer) BuildNewTileset(name string) *Tileset {
 	}
 
 	for i, tile := range p.tilesToRepack {
+		if tile.Tileset.TileWidth != p.tileWidth || tile.Tileset.TileHeight != p.tileHeight {
+			log.Fatalf("Tileset %s has different tile size than base tile size, please use object layer instead", tile.Tileset.Name)
+		}
+
 		repackedTile := &Tile{
 			ID:          LocalTileID(i),
 			Type:        tile.Type,

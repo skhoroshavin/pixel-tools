@@ -2,6 +2,7 @@ package tmx
 
 import (
 	"path/filepath"
+	"repack/atlas"
 	"repack/tsx"
 	"repack/util"
 )
@@ -21,19 +22,20 @@ type Map struct {
 }
 
 func (m *Map) Repack(name string) {
+	objPacker := atlas.New(m.Tilesets)
+	for _, objectGroup := range m.ObjectGroups {
+		for i, obj := range objectGroup.Objects {
+			if obj.GID != 0 {
+				objectGroup.Objects[i].GID = objPacker.UseTileID(obj.GID)
+			}
+		}
+	}
+
 	tilePacker := tsx.NewPacker(m.Tilesets)
 	for _, layer := range m.Layers {
 		for i, tileID := range layer.Data.Decoded {
 			if tileID != 0 {
 				layer.Data.Decoded[i] = tilePacker.UseTileID(tileID)
-			}
-		}
-	}
-
-	for _, objectGroup := range m.ObjectGroups {
-		for i, obj := range objectGroup.Objects {
-			if obj.GID != 0 {
-				objectGroup.Objects[i].GID = tilePacker.UseTileID(obj.GID)
 			}
 		}
 	}
