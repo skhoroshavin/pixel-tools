@@ -5,7 +5,7 @@ import (
 	"log"
 )
 
-func NewRepacker(srcTilesets []*Tileset) *Repacker {
+func NewPacker(srcTilesets []*Tileset) *Packer {
 	if len(srcTilesets) < 1 {
 		log.Fatalf("At least one source tileset is required for repacking")
 	}
@@ -17,25 +17,25 @@ func NewRepacker(srcTilesets []*Tileset) *Repacker {
 		}
 	}
 
-	return &Repacker{
+	return &Packer{
 		srcTilesets:    srcTilesets,
 		repackedTileID: make(map[GlobalTileID]GlobalTileID),
 	}
 }
 
-type Repacker struct {
+type Packer struct {
 	srcTilesets    []*Tileset
 	tilesToRepack  []*Tile
 	repackedTileID map[GlobalTileID]GlobalTileID
 }
 
-func (r *Repacker) UseTileID(tileID GlobalTileID) GlobalTileID {
-	if repackedTileID, ok := r.repackedTileID[tileID]; ok {
+func (p *Packer) UseTileID(tileID GlobalTileID) GlobalTileID {
+	if repackedTileID, ok := p.repackedTileID[tileID]; ok {
 		return repackedTileID
 	}
 
 	var tile *Tile
-	for _, ts := range r.srcTilesets {
+	for _, ts := range p.srcTilesets {
 		tile = ts.Tile(tileID)
 		if tile != nil {
 			break
@@ -45,30 +45,30 @@ func (r *Repacker) UseTileID(tileID GlobalTileID) GlobalTileID {
 		log.Fatalf("Failed to find source tile %d", tileID)
 	}
 
-	r.tilesToRepack = append(r.tilesToRepack, tile)
-	repackedTileID := GlobalTileID(len(r.tilesToRepack))
-	r.repackedTileID[tileID] = repackedTileID
+	p.tilesToRepack = append(p.tilesToRepack, tile)
+	repackedTileID := GlobalTileID(len(p.tilesToRepack))
+	p.repackedTileID[tileID] = repackedTileID
 
 	for _, anim := range tile.Animation {
 		animTileID := tile.Tileset.GlobalTileID(anim.TileID)
-		if _, ok := r.repackedTileID[animTileID]; ok {
+		if _, ok := p.repackedTileID[animTileID]; ok {
 			continue
 		}
 		animTile := tile.Tileset.Tile(animTileID)
 		if animTile == nil {
 			log.Fatalf("Failed to find source animation tile %d", animTileID)
 		}
-		r.tilesToRepack = append(r.tilesToRepack, animTile)
-		r.repackedTileID[animTileID] = GlobalTileID(len(r.tilesToRepack))
+		p.tilesToRepack = append(p.tilesToRepack, animTile)
+		p.repackedTileID[animTileID] = GlobalTileID(len(p.tilesToRepack))
 	}
 
 	return repackedTileID
 }
 
-func (r *Repacker) BuildNewTileset(name string) *Tileset {
-	tileset := r.srcTilesets[0]
+func (p *Packer) BuildNewTileset(name string) *Tileset {
+	tileset := p.srcTilesets[0]
 
-	tileCount := len(r.tilesToRepack)
+	tileCount := len(p.tilesToRepack)
 	imageColumns := nextPowerOfTwoSquare(tileCount)
 	imageWidth := tileset.TileWidth * imageColumns
 	imageHeight := tileset.TileHeight * imageColumns
@@ -88,7 +88,7 @@ func (r *Repacker) BuildNewTileset(name string) *Tileset {
 		},
 	}
 
-	for i, tile := range r.tilesToRepack {
+	for i, tile := range p.tilesToRepack {
 		repackedTile := &Tile{
 			ID:          LocalTileID(i),
 			Type:        tile.Type,
@@ -98,7 +98,7 @@ func (r *Repacker) BuildNewTileset(name string) *Tileset {
 		}
 		for _, frame := range tile.Animation {
 			animTileID := tile.Tileset.GlobalTileID(frame.TileID)
-			repackedAnimTileID := r.repackedTileID[animTileID]
+			repackedAnimTileID := p.repackedTileID[animTileID]
 			repackedTile.Animation = append(repackedTile.Animation, Frame{
 				TileID:   LocalTileID(repackedAnimTileID - 1),
 				Duration: frame.Duration,
@@ -111,8 +111,8 @@ func (r *Repacker) BuildNewTileset(name string) *Tileset {
 	return repackedTileset
 }
 
-func (r *Repacker) RepackedTileID(id GlobalTileID) GlobalTileID {
-	return r.repackedTileID[id]
+func (p *Packer) RepackedTileID(id GlobalTileID) GlobalTileID {
+	return p.repackedTileID[id]
 }
 
 func nextPowerOfTwoSquare(n int) int {

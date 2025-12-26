@@ -21,11 +21,11 @@ type Map struct {
 }
 
 func (m *Map) Repack(name string) {
-	repacker := tsx.NewRepacker(m.Tilesets)
+	tilePacker := tsx.NewPacker(m.Tilesets)
 	for _, layer := range m.Layers {
 		for i, tileID := range layer.Data.Decoded {
 			if tileID != 0 {
-				layer.Data.Decoded[i] = repacker.UseTileID(tileID)
+				layer.Data.Decoded[i] = tilePacker.UseTileID(tileID)
 			}
 		}
 	}
@@ -33,12 +33,12 @@ func (m *Map) Repack(name string) {
 	for _, objectGroup := range m.ObjectGroups {
 		for i, obj := range objectGroup.Objects {
 			if obj.GID != 0 {
-				objectGroup.Objects[i].GID = repacker.UseTileID(obj.GID)
+				objectGroup.Objects[i].GID = tilePacker.UseTileID(obj.GID)
 			}
 		}
 	}
 
-	m.Tilesets = []*tsx.Tileset{repacker.BuildNewTileset(name)}
+	m.Tilesets = []*tsx.Tileset{tilePacker.BuildNewTileset(name)}
 }
 
 func (m *Map) SaveImages(path string) {
