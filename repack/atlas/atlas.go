@@ -31,16 +31,28 @@ type Atlas struct {
 }
 
 type Sprite struct {
-	ID      tsx.GlobalTileID
-	SrcTile *tsx.Tile
-	Frame   Rect
+	ID         string
+	SrcTileset *tsx.Tileset
+	SrcTile    *tsx.Tile
+	Frame      Rect
 }
 
 type Point struct {
 	X, Y int
 }
 
-func (a *Atlas) UseTileID(tileID tsx.GlobalTileID) tsx.GlobalTileID {
+func (a *Atlas) UseTileset(tileset *tsx.Tileset) {
+	a.sprites = append(a.sprites, &Sprite{
+		ID:         "tileset",
+		SrcTileset: tileset,
+		Frame: Rect{
+			W: tileset.TileWidth * tileset.Columns,
+			H: tileset.TileHeight * (tileset.TileCount/tileset.Columns + 1),
+		},
+	})
+}
+
+func (a *Atlas) UseTile(tileID tsx.GlobalTileID) tsx.GlobalTileID {
 	if repackedTileID, ok := a.repackedTileID[tileID]; ok {
 		return repackedTileID
 	}
@@ -59,7 +71,7 @@ func (a *Atlas) UseTileID(tileID tsx.GlobalTileID) tsx.GlobalTileID {
 	repackedTileID := tsx.GlobalTileID(1000000 + len(a.repackedTileID))
 	a.repackedTileID[tileID] = repackedTileID
 	a.sprites = append(a.sprites, &Sprite{
-		ID:      repackedTileID,
+		ID:      fmt.Sprintf("%d", repackedTileID),
 		SrcTile: tile,
 		Frame: Rect{
 			W: tile.Tileset.TileWidth,
@@ -68,7 +80,7 @@ func (a *Atlas) UseTileID(tileID tsx.GlobalTileID) tsx.GlobalTileID {
 	})
 
 	for _, anim := range tile.Animation {
-		a.UseTileID(tile.Tileset.GlobalTileID(anim.TileID))
+		a.UseTile(tile.Tileset.GlobalTileID(anim.TileID))
 	}
 
 	return repackedTileID
@@ -110,22 +122,28 @@ func (a *Atlas) Save(baseName string) {
 	}
 
 	for _, sprite := range a.sprites {
-		srcTile := sprite.SrcTile
-		srcColumns := srcTile.Tileset.Columns
-
+		dstX := sprite.Frame.X
+		dstY := sprite.Frame.Y
 		w := sprite.Frame.W
 		h := sprite.Frame.H
 
-		srcX := (int(srcTile.ID) % srcColumns) * w
-		srcY := (int(srcTile.ID) / srcColumns) * h
-		dstX := sprite.Frame.X
-		dstY := sprite.Frame.Y
+		switch {
+		case sprite.SrcTileset != nil:
+			draw.Draw(img, image.Rect(dstX, dstY, dstX+w, dstY+h),
+				sprite.SrcTileset.Image.Data, image.Pt(0, 0), draw.Src)
+		case sprite.SrcTile != nil:
+			srcTile := sprite.SrcTile
+			srcColumns := srcTile.Tileset.Columns
 
-		draw.Draw(img, image.Rect(dstX, dstY, dstX+w, dstY+h),
-			srcTile.Tileset.Image.Data, image.Pt(srcX, srcY), draw.Src)
+			srcX := (int(srcTile.ID) % srcColumns) * w
+			srcY := (int(srcTile.ID) / srcColumns) * h
+
+			draw.Draw(img, image.Rect(dstX, dstY, dstX+w, dstY+h),
+				srcTile.Tileset.Image.Data, image.Pt(srcX, srcY), draw.Src)
+		}
 
 		data.Frames = append(data.Frames, Frame{
-			Filename: fmt.Sprintf("%d", sprite.ID),
+			Filename: sprite.ID,
 			Frame:    sprite.Frame,
 		})
 	}

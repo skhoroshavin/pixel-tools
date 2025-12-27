@@ -36,7 +36,7 @@ func main() {
 		shortName := filepath.Base(fullName)
 
 		outputTmj := filepath.Join(outputDir, fullName+".tmj")
-		outputSprites := filepath.Join(outputDir, fullName+"-sprites")
+		outputAtlas := strings.TrimSuffix(outputTmj, ".tmj")
 		tmjDir := filepath.Dir(outputTmj)
 
 		fmt.Println("Processing", strings.TrimPrefix(inputTmx, inputDir),
@@ -51,8 +51,7 @@ func main() {
 		src.Repack(shortName)
 		dst := tmj.ConvertFromTMX(src)
 
-		src.SaveTiles(tmjDir)
-		src.SaveSprites(outputSprites)
+		src.SaveAtlas(outputAtlas)
 		dst.Save(outputTmj)
 
 		return nil
