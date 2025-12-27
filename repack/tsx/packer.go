@@ -37,7 +37,7 @@ type Packer struct {
 	tileHeight     int
 }
 
-func (p *Packer) UseTileID(tileID GlobalTileID) GlobalTileID {
+func (p *Packer) UseTile(tileID GlobalTileID) GlobalTileID {
 	if repackedTileID, ok := p.repackedTileID[tileID]; ok {
 		return repackedTileID
 	}

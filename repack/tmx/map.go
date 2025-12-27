@@ -6,17 +6,16 @@ import (
 )
 
 type Map struct {
-	Version      string            `xml:"version,attr"`
-	Orientation  string            `xml:"orientation,attr"`
-	RenderOrder  string            `xml:"renderorder,attr"`
-	Width        int               `xml:"width,attr"`
-	Height       int               `xml:"height,attr"`
-	TileWidth    int               `xml:"tilewidth,attr"`
-	TileHeight   int               `xml:"tileheight,attr"`
-	Tilesets     []*tsx.Tileset    `xml:"tileset"`
-	Layers       []*Layer          `xml:"layer"`
-	ObjectGroups []tsx.ObjectGroup `xml:"objectgroup"`
-	Properties   []tsx.Property    `xml:"properties>property"`
+	Version     string         `xml:"version,attr"`
+	Orientation string         `xml:"orientation,attr"`
+	RenderOrder string         `xml:"renderorder,attr"`
+	Width       int            `xml:"width,attr"`
+	Height      int            `xml:"height,attr"`
+	TileWidth   int            `xml:"tilewidth,attr"`
+	TileHeight  int            `xml:"tileheight,attr"`
+	Tilesets    []*tsx.Tileset `xml:"tileset"`
+	Layers      []*Layer       `xml:",any"`
+	Properties  []tsx.Property `xml:"properties>property"`
 
 	atlas *atlas.Atlas
 }
@@ -24,23 +23,25 @@ type Map struct {
 func (m *Map) Repack(name string) {
 	tilePacker := tsx.NewPacker(m.Tilesets)
 	for _, layer := range m.Layers {
-		for i, tileID := range layer.Data.Decoded {
-			if tileID != 0 {
-				layer.Data.Decoded[i] = tilePacker.UseTileID(tileID)
+		switch {
+		case layer.IsTileLayer():
+			for i, tileID := range layer.Data.Decoded {
+				if tileID != 0 {
+					layer.Data.Decoded[i] = tilePacker.UseTile(tileID)
+				}
+			}
+		case layer.IsObjectGroup():
+			for i, obj := range layer.Objects {
+				if obj.GID != 0 {
+					layer.Objects[i].GID = m.atlas.UseTile(obj.GID)
+				}
 			}
 		}
 	}
+
 	tileset := tilePacker.BuildNewTileset(name)
 	m.Tilesets = []*tsx.Tileset{tileset}
 	m.atlas.UseTileset(tileset)
-
-	for _, objectGroup := range m.ObjectGroups {
-		for i, obj := range objectGroup.Objects {
-			if obj.GID != 0 {
-				objectGroup.Objects[i].GID = m.atlas.UseTile(obj.GID)
-			}
-		}
-	}
 	m.atlas.Pack()
 }
 

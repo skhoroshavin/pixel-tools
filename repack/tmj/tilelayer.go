@@ -20,7 +20,7 @@ type TileLayer struct {
 	Properties []Property         `json:"properties,omitempty"`
 }
 
-func convertTileLayer(layer *tmx.Layer, layerID int) TileLayer {
+func convertTileLayer(layer *tmx.TileLayer, layerID int) TileLayer {
 	props := convertProperties(layer.Properties)
 	// So far Phaser doesn't load layer.class, so this is a workaround
 	if layer.Class != "" {

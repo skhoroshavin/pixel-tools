@@ -45,15 +45,15 @@ func ConvertFromTMX(src *tmx.Map) Map {
 
 	layerID := 1
 
-	// Convert tile layers
+	// Convert layers
 	for _, layer := range src.Layers {
-		res.Layers = append(res.Layers, convertTileLayer(layer, layerID))
+		switch {
+		case layer.IsTileLayer():
+			res.Layers = append(res.Layers, convertTileLayer(layer.AsTileLayer(), layerID))
+		case layer.IsObjectGroup():
+			res.Layers = append(res.Layers, convertObjectGroup(layer.AsObjectGroup()))
+		}
 		layerID++
-	}
-
-	// Convert object groups
-	for _, objectGroup := range src.ObjectGroups {
-		res.Layers = append(res.Layers, convertObjectGroup(objectGroup))
 	}
 
 	// Convert tilesets

@@ -22,7 +22,9 @@ func Load(path string) *Map {
 	}
 
 	for _, layer := range res.Layers {
-		layer.Decode()
+		if layer.IsTileLayer() {
+			layer.Data.Decode()
+		}
 	}
 
 	for i, tileset := range res.Tilesets {
