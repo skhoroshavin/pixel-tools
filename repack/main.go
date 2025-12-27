@@ -39,8 +39,7 @@ func main() {
 		outputAtlas := strings.TrimSuffix(outputTmj, ".tmj")
 		tmjDir := filepath.Dir(outputTmj)
 
-		fmt.Println("Processing", strings.TrimPrefix(inputTmx, inputDir),
-			"->", strings.TrimPrefix(outputTmj, outputDir))
+		fmt.Println("Processing", strings.TrimPrefix(inputTmx, inputDir))
 
 		err = os.MkdirAll(tmjDir, 0775)
 		if err != nil {

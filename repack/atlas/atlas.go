@@ -13,9 +13,9 @@ import (
 	"sort"
 )
 
-func New(tilesets []*tsx.Tileset) *Atlas {
+func New(spriteTilesets []*tsx.Tileset) *Atlas {
 	return &Atlas{
-		tilesets:       tilesets,
+		spriteTilesets: spriteTilesets,
 		repackedTileID: make(map[tsx.GlobalTileID]tsx.GlobalTileID),
 		size:           16,
 		skyline:        []Point{{X: 0, Y: 0}},
@@ -23,18 +23,21 @@ func New(tilesets []*tsx.Tileset) *Atlas {
 }
 
 type Atlas struct {
-	tilesets       []*tsx.Tileset
+	spriteTilesets []*tsx.Tileset
 	repackedTileID map[tsx.GlobalTileID]tsx.GlobalTileID
 	sprites        []*Sprite
-	size           int
-	skyline        []Point
+
+	mapTileset       *tsx.Tileset
+	mapTilesetSprite *Sprite
+
+	size    int
+	skyline []Point
 }
 
 type Sprite struct {
-	ID         string
-	SrcTileset *tsx.Tileset
-	SrcTile    *tsx.Tile
-	Frame      Rect
+	ID    string
+	Tile  *tsx.Tile
+	Frame Rect
 }
 
 type Point struct {
@@ -42,14 +45,14 @@ type Point struct {
 }
 
 func (a *Atlas) UseTileset(tileset *tsx.Tileset) {
-	a.sprites = append(a.sprites, &Sprite{
-		ID:         "tileset",
-		SrcTileset: tileset,
+	a.mapTileset = tileset
+	a.mapTilesetSprite = &Sprite{
+		ID: "tileset",
 		Frame: Rect{
 			W: tileset.TileWidth * tileset.Columns,
 			H: tileset.TileHeight * (tileset.TileCount/tileset.Columns + 1),
 		},
-	})
+	}
 }
 
 func (a *Atlas) UseTile(tileID tsx.GlobalTileID) tsx.GlobalTileID {
@@ -58,7 +61,7 @@ func (a *Atlas) UseTile(tileID tsx.GlobalTileID) tsx.GlobalTileID {
 	}
 
 	var tile *tsx.Tile
-	for _, ts := range a.tilesets {
+	for _, ts := range a.spriteTilesets {
 		tile = ts.Tile(tileID)
 		if tile != nil {
 			break
@@ -71,8 +74,8 @@ func (a *Atlas) UseTile(tileID tsx.GlobalTileID) tsx.GlobalTileID {
 	repackedTileID := tsx.GlobalTileID(1000000 + len(a.repackedTileID))
 	a.repackedTileID[tileID] = repackedTileID
 	a.sprites = append(a.sprites, &Sprite{
-		ID:      fmt.Sprintf("%d", repackedTileID),
-		SrcTile: tile,
+		ID:   fmt.Sprintf("%d", repackedTileID),
+		Tile: tile,
 		Frame: Rect{
 			W: tile.Tileset.TileWidth,
 			H: tile.Tileset.TileHeight,
@@ -102,6 +105,10 @@ func (a *Atlas) Pack() {
 		return iw > ih
 	})
 
+	if a.mapTilesetSprite != nil {
+		a.packSprite(a.mapTilesetSprite)
+	}
+
 	for _, sprite := range a.sprites {
 		a.packSprite(sprite)
 	}
@@ -121,26 +128,31 @@ func (a *Atlas) Save(baseName string) {
 		},
 	}
 
+	if a.mapTilesetSprite != nil {
+		frame := a.mapTilesetSprite.Frame
+
+		draw.Draw(img, image.Rect(0, 0, frame.W, frame.H),
+			a.mapTileset.Image.Data, image.Pt(0, 0), draw.Src)
+
+		data.Frames = append(data.Frames, Frame{
+			Filename: a.mapTilesetSprite.ID,
+			Frame:    frame,
+		})
+	}
+
 	for _, sprite := range a.sprites {
 		dstX := sprite.Frame.X
 		dstY := sprite.Frame.Y
 		w := sprite.Frame.W
 		h := sprite.Frame.H
 
-		switch {
-		case sprite.SrcTileset != nil:
-			draw.Draw(img, image.Rect(dstX, dstY, dstX+w, dstY+h),
-				sprite.SrcTileset.Image.Data, image.Pt(0, 0), draw.Src)
-		case sprite.SrcTile != nil:
-			srcTile := sprite.SrcTile
-			srcColumns := srcTile.Tileset.Columns
+		srcTile := sprite.Tile
+		srcColumns := srcTile.Tileset.Columns
+		srcX := (int(srcTile.ID) % srcColumns) * w
+		srcY := (int(srcTile.ID) / srcColumns) * h
 
-			srcX := (int(srcTile.ID) % srcColumns) * w
-			srcY := (int(srcTile.ID) / srcColumns) * h
-
-			draw.Draw(img, image.Rect(dstX, dstY, dstX+w, dstY+h),
-				srcTile.Tileset.Image.Data, image.Pt(srcX, srcY), draw.Src)
-		}
+		draw.Draw(img, image.Rect(dstX, dstY, dstX+w, dstY+h),
+			srcTile.Tileset.Image.Data, image.Pt(srcX, srcY), draw.Src)
 
 		data.Frames = append(data.Frames, Frame{
 			Filename: sprite.ID,
