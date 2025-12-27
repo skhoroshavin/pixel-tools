@@ -27,9 +27,8 @@ repack <source-folder> <destination-folder>
 This command will:
 1. Recursively scan all `.tmx` files in the source folder
 2. Generate optimized output in the destination folder:
-    - JSON tilemaps (compatible with Phaser.io engine)
-    - Optimized sprite atlases
-    - Compressed PNG files with only used tiles
+    - JSON tilemaps and atlas mappings (compatible with Phaser.io engine)
+    - Compressed PNG files with only used tiles and sprites
 
 Example input and output structures:
 ```
@@ -47,17 +46,14 @@ destination/
 ├── episode1/
 │ ├── level1.tmj
 │ ├── level1.png
-│ ├── level1-sprites.json
-│ ├── level1-sprites.png
+│ ├── level1.atlas
 │ ├── level2.tmj
 │ ├── level2.png
-│ ├── level2-sprites.json
-│ └── level2-sprites.png
+│ └── level2.atlas
 └── episode2/
   ├── level1.tmj
   ├── level1.png
-  ├── level1-sprites.json
-  └── level1-sprites.png
+  └── level1.atlas
 ```
 
 ## [Recolor](recolor)

@@ -154,7 +154,7 @@ func (a *Atlas) Save(baseName string) {
 	if err != nil {
 		log.Fatalf("Failed to encode atlas JSON: %v", err)
 	}
-	err = os.WriteFile(baseName+".json", atlasJSON, 0644)
+	err = os.WriteFile(baseName+".atlas", atlasJSON, 0644)
 	if err != nil {
 		log.Fatalf("Failed to write atlas JSON: %v", err)
 	}
