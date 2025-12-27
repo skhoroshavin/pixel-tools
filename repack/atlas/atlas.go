@@ -50,7 +50,7 @@ func (a *Atlas) UseTileset(tileset *tsx.Tileset) {
 		ID: "tileset",
 		Frame: Rect{
 			W: tileset.TileWidth * tileset.Columns,
-			H: tileset.TileHeight * (tileset.TileCount/tileset.Columns + 1),
+			H: tileset.TileHeight * ((tileset.TileCount-1)/tileset.Columns + 1),
 		},
 	}
 }
