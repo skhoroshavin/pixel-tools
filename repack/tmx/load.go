@@ -7,6 +7,7 @@ import (
 	"path/filepath"
 	"repack/atlas"
 	"repack/tsx"
+	"strings"
 )
 
 func Load(path string) *Map {
@@ -37,6 +38,6 @@ func Load(path string) *Map {
 		}
 	}
 
-	res.atlas = atlas.New(res.Tilesets)
+	res.atlas = atlas.New(strings.TrimSuffix(filepath.Base(path), ".tmx"), res.Tilesets)
 	return &res
 }

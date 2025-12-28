@@ -21,28 +21,24 @@ type Map struct {
 }
 
 func (m *Map) Repack(name string) {
-	tilePacker := tsx.NewPacker(m.Tilesets)
 	for _, layer := range m.Layers {
 		switch {
 		case layer.IsTileLayer():
 			for i, tileID := range layer.Data.Decoded {
 				if tileID != 0 {
-					layer.Data.Decoded[i] = tilePacker.UseTile(tileID.WithoutFlags()).WithFlags(tileID.Flags())
+					layer.Data.Decoded[i] = m.atlas.UseTile(tileID.WithoutFlags()).WithFlags(tileID.Flags())
 				}
 			}
 		case layer.IsObjectGroup():
 			for i, obj := range layer.Objects {
 				if obj.GID != 0 {
-					layer.Objects[i].GID = m.atlas.UseTile(obj.GID.WithoutFlags()).WithFlags(obj.GID.Flags())
+					layer.Objects[i].GID = m.atlas.UseSprite(obj.GID.WithoutFlags()).WithFlags(obj.GID.Flags())
 				}
 			}
 		}
 	}
 
-	tileset := tilePacker.BuildNewTileset(name)
-	m.Tilesets = []*tsx.Tileset{tileset}
-	m.atlas.UseTileset(tileset)
-	m.atlas.Pack()
+	m.Tilesets = []*tsx.Tileset{m.atlas.Pack()}
 }
 
 func (m *Map) SaveAtlas(baseName string) {

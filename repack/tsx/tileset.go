@@ -18,6 +18,10 @@ type Tileset struct {
 	Tiles      []*Tile      `xml:"tile"`
 }
 
+func (ts *Tileset) HasSameTileSize(other *Tileset) bool {
+	return ts.TileWidth == other.TileWidth && ts.TileHeight == other.TileHeight
+}
+
 type Tile struct {
 	ID          LocalTileID `xml:"id,attr"`
 	Type        string      `xml:"type,attr"`
