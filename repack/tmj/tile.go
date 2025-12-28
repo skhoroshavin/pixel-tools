@@ -21,7 +21,7 @@ func convertTile(t *tsx.Tile) Tile {
 	return Tile{
 		ID:          t.ID,
 		Type:        t.Type,
-		ObjectGroup: convertObjectGroupOptional(t.ObjectGroup),
+		ObjectGroup: convertOptionalObjectGroup(t.ObjectGroup),
 		Animation:   convertAnimation(t.Animation),
 		Properties:  convertProperties(t.Properties),
 	}

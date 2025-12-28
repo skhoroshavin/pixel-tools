@@ -39,7 +39,7 @@ func convertObjectGroup(og tsx.ObjectGroup) ObjectGroup {
 	}
 }
 
-func convertObjectGroupOptional(og tsx.ObjectGroup) *ObjectGroup {
+func convertOptionalObjectGroup(og tsx.ObjectGroup) *ObjectGroup {
 	if len(og.Objects) == 0 {
 		return nil
 	}

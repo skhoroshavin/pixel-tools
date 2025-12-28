@@ -177,6 +177,10 @@ func (a *Atlas) Save(baseName string) {
 		data.Frames = append(data.Frames, Frame{
 			Filename: sprite.ID,
 			Frame:    sprite.Frame,
+
+			Animation:   convertAnimation(srcTile.Animation),
+			ObjectGroup: convertObjectGroup(srcTile.ObjectGroup),
+			Properties:  convertProperties(srcTile.Properties),
 		})
 	}
 
