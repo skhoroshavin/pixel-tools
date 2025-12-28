@@ -27,13 +27,13 @@ func (m *Map) Repack(name string) {
 		case layer.IsTileLayer():
 			for i, tileID := range layer.Data.Decoded {
 				if tileID != 0 {
-					layer.Data.Decoded[i] = tilePacker.UseTile(tileID)
+					layer.Data.Decoded[i] = tilePacker.UseTile(tileID.WithoutFlags()).WithFlags(tileID.Flags())
 				}
 			}
 		case layer.IsObjectGroup():
 			for i, obj := range layer.Objects {
 				if obj.GID != 0 {
-					layer.Objects[i].GID = m.atlas.UseTile(obj.GID)
+					layer.Objects[i].GID = m.atlas.UseTile(obj.GID.WithoutFlags()).WithFlags(obj.GID.Flags())
 				}
 			}
 		}

@@ -49,6 +49,7 @@ func (l *Layer) AsObjectGroup() tsx.ObjectGroup {
 	return tsx.ObjectGroup{
 		ID:         l.ID,
 		Name:       l.Name,
+		Class:      l.Class,
 		Objects:    l.Objects,
 		Properties: l.Properties,
 	}
@@ -81,7 +82,7 @@ func (l *LayerData) Decode() {
 		if entry == "" {
 			continue
 		}
-		num, err := strconv.ParseInt(entry, 10, 32)
+		num, err := strconv.ParseUint(entry, 10, 32)
 		if err != nil {
 			log.Fatalf("Failed to parse CSV entry: %v", err)
 		}

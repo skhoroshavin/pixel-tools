@@ -33,8 +33,20 @@ type Frame struct {
 	Duration int         `xml:"duration,attr"` // milliseconds
 }
 
-type GlobalTileID int
-type LocalTileID int
+type GlobalTileID uint32
+type LocalTileID uint32
+
+func (t GlobalTileID) WithoutFlags() GlobalTileID {
+	return t & 0x0fffffff
+}
+
+func (t GlobalTileID) Flags() uint32 {
+	return uint32(t) >> 28
+}
+
+func (t GlobalTileID) WithFlags(flags uint32) GlobalTileID {
+	return GlobalTileID(uint32(t) | (flags << 28))
+}
 
 func (ts *Tileset) PostLoad(basePath string) {
 	ts.Image.PostLoad(basePath)

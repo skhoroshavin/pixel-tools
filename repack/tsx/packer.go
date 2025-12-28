@@ -75,7 +75,7 @@ func (p *Packer) UseTile(tileID GlobalTileID) GlobalTileID {
 
 func (p *Packer) BuildNewTileset(name string) *Tileset {
 	tileCount := len(p.tilesToRepack)
-	imageColumns := nextPowerOfTwoSquare(tileCount)
+	imageColumns := nextPowerOfTwoSquare(tileCount) * 2
 	imageWidth := p.tileWidth * imageColumns
 	imageHeight := p.tileHeight * imageColumns
 
