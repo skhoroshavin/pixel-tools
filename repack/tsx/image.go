@@ -15,5 +15,5 @@ type Image struct {
 }
 
 func (i *Image) PostLoad(basePath string) {
-	i.Data = util.ReadImage(filepath.Join(basePath, i.Source))
+	i.Data = util.GetImage(filepath.Join(basePath, i.Source))
 }

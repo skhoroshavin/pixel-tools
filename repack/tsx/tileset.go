@@ -14,7 +14,7 @@ type Tileset struct {
 	TileHeight int          `xml:"tileheight,attr"`
 	TileCount  int          `xml:"tilecount,attr"`
 	Columns    int          `xml:"columns,attr"`
-	Image      Image        `xml:"image"`
+	Image      *Image       `xml:"image"`
 	Tiles      []*Tile      `xml:"tile"`
 }
 
@@ -28,6 +28,12 @@ type Tile struct {
 	Animation   []Frame     `xml:"animation>frame"`
 	Properties  []Property  `xml:"properties>property"`
 	ObjectGroup ObjectGroup `xml:"objectgroup"`
+
+	Image  *Image `xml:"image"`
+	X      int    `xml:"x,attr"`
+	Y      int    `xml:"y,attr"`
+	Width  int    `xml:"width,attr"`
+	Height int    `xml:"height,attr"`
 
 	Tileset *Tileset `xml:"-"`
 }
@@ -53,9 +59,14 @@ func (t GlobalTileID) WithFlags(flags uint32) GlobalTileID {
 }
 
 func (ts *Tileset) PostLoad(basePath string) {
-	ts.Image.PostLoad(basePath)
+	if ts.Image != nil {
+		ts.Image.PostLoad(basePath)
+	}
 	for _, tile := range ts.Tiles {
 		tile.Tileset = ts
+		if tile.Image != nil {
+			tile.Image.PostLoad(basePath)
+		}
 	}
 }
 

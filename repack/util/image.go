@@ -5,6 +5,7 @@ import (
 	"image/png"
 	"log"
 	"os"
+	"sync"
 )
 
 func ReadImage(path string) image.Image {
@@ -20,6 +21,19 @@ func ReadImage(path string) image.Image {
 	return img
 }
 
+func GetImage(path string) image.Image {
+	muImgCache.Lock()
+	defer muImgCache.Unlock()
+
+	if img, ok := imgCache[path]; ok {
+		return img
+	}
+
+	img := ReadImage(path)
+	imgCache[path] = img
+	return img
+}
+
 func WriteImage(img image.Image, path string) {
 	f, err := os.Create(path)
 	if err != nil {
@@ -31,3 +45,8 @@ func WriteImage(img image.Image, path string) {
 		log.Fatalf("Failed to encode image: %v", err)
 	}
 }
+
+var (
+	muImgCache sync.Mutex
+	imgCache   = make(map[string]image.Image)
+)

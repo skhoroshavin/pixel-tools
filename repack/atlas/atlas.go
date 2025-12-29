@@ -79,13 +79,24 @@ func (a *Atlas) UseSprite(tileID tsx.GlobalTileID) tsx.GlobalTileID {
 	tile := a.findTile(tileID)
 	repackedTileID := tsx.GlobalTileID(1000000 + len(a.repackedSprites))
 	a.repackedSprites[tileID] = repackedTileID
-	a.sprites = append(a.sprites, &Sprite{
-		ID:   fmt.Sprintf("%d", repackedTileID),
-		Tile: tile,
-		Frame: Rect{
+
+	var frame Rect
+	if tile.Image == nil {
+		frame = Rect{
 			W: tile.Tileset.TileWidth,
 			H: tile.Tileset.TileHeight,
-		},
+		}
+	} else {
+		frame = Rect{
+			W: tile.Width,
+			H: tile.Height,
+		}
+	}
+
+	a.sprites = append(a.sprites, &Sprite{
+		ID:    fmt.Sprintf("%d", repackedTileID),
+		Tile:  tile,
+		Frame: frame,
 	})
 
 	for _, anim := range tile.Animation {
@@ -168,11 +179,20 @@ func (a *Atlas) Save(baseName string) {
 
 		srcTile := sprite.Tile
 		srcColumns := srcTile.Tileset.Columns
-		srcX := (int(srcTile.ID) % srcColumns) * w
-		srcY := (int(srcTile.ID) / srcColumns) * h
+		var srcX, srcY int
+		var srcImage image.Image
+		if srcTile.Image == nil {
+			srcX = (int(srcTile.ID) % srcColumns) * w
+			srcY = (int(srcTile.ID) / srcColumns) * h
+			srcImage = srcTile.Tileset.Image.Data
+		} else {
+			srcX = srcTile.X
+			srcY = srcTile.Y
+			srcImage = srcTile.Image.Data
+		}
 
 		draw.Draw(img, image.Rect(dstX, dstY, dstX+w, dstY+h),
-			srcTile.Tileset.Image.Data, image.Pt(srcX, srcY), draw.Src)
+			srcImage, image.Pt(srcX, srcY), draw.Src)
 
 		data.Frames = append(data.Frames, Frame{
 			Filename: sprite.ID,
@@ -287,7 +307,7 @@ func (a *Atlas) buildTileset() *tsx.Tileset {
 		TileHeight: tileHeight,
 		TileCount:  tileCount,
 		Columns:    tileColumns,
-		Image: tsx.Image{
+		Image: &tsx.Image{
 			Source: a.name + ".png",
 			Width:  a.size,
 			Height: a.size,
