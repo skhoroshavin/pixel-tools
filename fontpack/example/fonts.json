@@ -1,0 +1,52 @@
+{
+  "fonts": [
+    {
+      "name": "mana_branches",
+      "size": 16,
+      "line_spacing": 1,
+      "letter_spacing": 1,
+      "space_width": 4,
+      "letters": [
+        "ABCDEFGHIJKLMNOPQRSTUVWXYZ",
+        "abcdefghijklmnopqrstuvwxyz",
+        "0123456789!\"#$%&'()*+,-./:",
+        ";<=>?[]\\^_`{}|~@·ÄÁÀÂÅÃäáà",
+        "âåãÏÍÌÎïíìîÜÚÙÛüúùûÖÓÒÔÕöó",
+        "òôõËÉÈÊëéèêŸÝỲÿýỳÇçÑñÆæŒœß",
+        "ðÐþÞ¿¡"
+      ]
+    },
+    {
+      "name": "mana_roots",
+      "size": 16,
+      "line_spacing": 1,
+      "letter_spacing": 1,
+      "space_width": 4,
+      "letters": [
+        "ABCDEFGHIJKLMNOPQRSTUVWXYZ",
+        "abcdefghijklmnopqrstuvwxyz",
+        "0123456789!\"#$%&'()*+,-./:",
+        ";<=>?[]\\^_`{}|~@·ÄÁÀÂÅÃäáà",
+        "âåãÏÍÌÎïíìîÜÚÙÛüúùûÖÓÒÔÕöó",
+        "òôõËÉÈÊëéèêŸÝỲÿýỳÇçÑñÆæŒœß",
+        "ðÐþÞ¿¡"
+      ]
+    },
+    {
+      "name": "mana_trunk",
+      "size": 16,
+      "line_spacing": 1,
+      "letter_spacing": 1,
+      "space_width": 4,
+      "letters": [
+        "ABCDEFGHIJKLMNOPQRSTUVWXYZ",
+        "abcdefghijklmnopqrstuvwxyz",
+        "0123456789!\"#$%&'()*+,-./:",
+        ";<=>?[]\\^_`{}|~@·ÄÁÀÂÅÃäáà",
+        "âåãÏÍÌÎïíìîÜÚÙÛüúùûÖÓÒÔÕöó",
+        "òôõËÉÈÊëéèêŸÝỲÿýỳÇçÑñÆæŒœß",
+        "ðÐþÞ¿¡"
+      ]
+    }
+  ]
+}
