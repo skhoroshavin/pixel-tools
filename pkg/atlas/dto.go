@@ -20,7 +20,7 @@ type Size struct {
 type Frame struct {
 	Filename string         `json:"filename"`
 	Frame    Rect           `json:"frame"`
-	Data     map[string]any `json:"data"`
+	Data     map[string]any `json:"data,omitempty"`
 }
 
 type Rect struct {
