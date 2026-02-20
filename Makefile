@@ -25,7 +25,7 @@ tilepack:
 
 test-fontpack: fontpack
 	@mkdir -p cmd/fontpack/example/output
-	cd cmd/fontpack/example && ../../../bin/fontpack fonts.json output
+	cd cmd/fontpack/example && ../../../bin/fontpack fonts.yaml output
 	@diff -r cmd/fontpack/example/output cmd/fontpack/example/expected_output || (echo "FAIL: fontpack output differs from expected" && exit 1)
 	echo "SUCCESS: fontpack output is identical to expected"
 

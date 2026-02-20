@@ -4,10 +4,13 @@ import (
 	"fmt"
 	"image"
 	"os"
-	"pixel-tools/pkg/fileutil"
+	"path"
+	"path/filepath"
+	"pixel-tools/cmd/fontpack/config"
+	"pixel-tools/pkg/atlas"
+	"pixel-tools/pkg/file/bmfont"
+	"pixel-tools/pkg/file/png"
 	"pixel-tools/pkg/imgutil"
-
-	"pixel-tools/cmd/fontpack/util"
 )
 
 func main() {
@@ -22,71 +25,110 @@ func main() {
 	fmt.Println("Input config:", fontConfigFile)
 	fmt.Println("Output directory:", outputDir)
 
-	fontConfig := util.ReadFontConfig(fontConfigFile)
-	for _, font := range fontConfig.Fonts {
-		img := fileutil.ReadImage(font.Name + ".png")
+	fa := NewFontAtlas("fonts")
+	for _, font := range config.Read(fontConfigFile) {
+		fa.AddFont(font)
+	}
 
-		bmfont := util.BMFont{
-			Info: util.FontInfo{
-				Face: font.Name,
-				Size: font.Size,
-			},
-			Common: util.Common{
-				Pages: 1,
-			},
-			Pages: util.Pages{
-				Page: []util.Page{
-					{
-						File: font.Name + ".png",
-					},
-				},
-			},
+	fa.Build()
+	outputImage := filepath.Join(outputDir, "fonts.png")
+	fa.SaveImage(outputImage)
+	fa.SaveBMFonts(outputDir)
+}
+
+func NewFontAtlas(name string) *FontAtlas {
+	return &FontAtlas{
+		atlas: atlas.New(name),
+		fonts: make([]config.Font, 0),
+	}
+}
+
+type FontAtlas struct {
+	atlas *atlas.Atlas
+
+	fonts   []config.Font
+	bmfonts []*bmfont.BMFont
+}
+
+func (fa *FontAtlas) AddFont(font config.Font) {
+	fa.fonts = append(fa.fonts, font)
+	bmf := bmfont.New(font.Name, font.Size, "")
+	fa.bmfonts = append(fa.bmfonts, bmf)
+	bmf.AddChar(32, 0, 0, 0, 0, 0, 0, font.SpaceWidth+font.LetterSpacing)
+
+	img := png.Read(filepath.Join(filepath.Dir(os.Args[1]), font.Name+".png"))
+	minTop := font.Size
+	maxBottom := 0
+
+	for y, str := range font.Letters {
+		x := 0
+		for _, chr := range str {
+			glyphImg := img.SubImage(image.Rect(x*font.Size, y*font.Size, (x+1)*font.Size, (y+1)*font.Size))
+			rightMargin := imgutil.GetRightMargin(glyphImg)
+			topMargin := imgutil.GetTopMargin(glyphImg)
+			bottomMargin := imgutil.GetBottomMargin(glyphImg)
+
+			w := font.Size - rightMargin
+			h := font.Size - bottomMargin - topMargin
+
+			if w > 0 && h > 0 {
+				if topMargin < minTop {
+					minTop = topMargin
+				}
+				if font.Size-bottomMargin > maxBottom {
+					maxBottom = font.Size - bottomMargin
+				}
+
+				actualGlyph := img.SubImage(image.Rect(x*font.Size, y*font.Size+topMargin, (x+1)*font.Size-rightMargin, (y+1)*font.Size-bottomMargin))
+				spriteName := fmt.Sprintf("%s_%d", font.Name, chr)
+				fa.atlas.AddSprite(spriteName, actualGlyph, nil)
+				bmf.AddChar(chr, 0, 0, w, h, 0, topMargin, w+font.LetterSpacing)
+			}
+			x++
 		}
+	}
 
-		bmfont.Chars.Count = 1
-		bmfont.Chars.Char = append(bmfont.Chars.Char, util.Char{
-			ID:       32,
-			Letter:   " ",
-			X:        0,
-			Y:        0,
-			Width:    0,
-			Height:   0,
-			XAdvance: font.SpaceWidth + font.LetterSpacing,
-		})
+	for i := range bmf.Chars.Char {
+		if bmf.Chars.Char[i].ID != 32 {
+			bmf.Chars.Char[i].YOffset -= minTop
+			bmf.Chars.Char[i].YOffset += font.TopOffset
+		} else {
+			bmf.Chars.Char[i].YOffset = -minTop + font.TopOffset
+		}
+	}
+	bmf.Common.LineHeight = maxBottom - minTop + font.LineSpacing
+}
 
-		minTopMargin := font.Size
-		minBottomMargin := font.Size
-		for y, str := range font.Letters {
-			x := 0
-			for _, chr := range str {
-				bmfont.Chars.Count++
-				glyph := img.SubImage(image.Rect(x*font.Size, y*font.Size, (x+1)*font.Size, (y+1)*font.Size))
-				rightMargin := imgutil.GetRightMargin(glyph)
-				topMargin := imgutil.GetTopMargin(glyph)
-				bottomMargin := imgutil.GetBottomMargin(glyph)
+func (fa *FontAtlas) Build() {
+	fa.atlas.Pack()
 
-				bmfont.Chars.Char = append(bmfont.Chars.Char, util.Char{
-					ID:       int(chr),
-					X:        x * font.Size,
-					Y:        y*font.Size + topMargin,
-					Width:    font.Size - rightMargin,
-					Height:   font.Size - bottomMargin - topMargin,
-					XOffset:  0,
-					YOffset:  topMargin,
-					XAdvance: font.Size - rightMargin + font.LetterSpacing,
-					Letter:   fmt.Sprintf("%c", chr),
-				})
-
-				minTopMargin = min(minTopMargin, topMargin)
-				minBottomMargin = min(minBottomMargin, bottomMargin)
-				x++
+	for _, bmf := range fa.bmfonts {
+		bmf.Common.Base = 0
+		for i := range bmf.Chars.Char {
+			char := &bmf.Chars.Char[i]
+			if char.ID == 32 {
+				continue
+			}
+			spriteName := fmt.Sprintf("%s_%d", bmf.Info.Face, char.ID)
+			sprite := fa.atlas.GetSprite(spriteName)
+			if sprite != nil {
+				char.X = sprite.X
+				char.Y = sprite.Y
 			}
 		}
-		bmfont.Common.LineHeight = font.Size + font.LineSpacing - minTopMargin - minBottomMargin
-		for i := range bmfont.Chars.Char[1:] {
-			bmfont.Chars.Char[i].YOffset -= minTopMargin
-		}
+		bmf.Chars.Count = len(bmf.Chars.Char)
+	}
+}
 
-		util.SaveBMFont(bmfont, outputDir+"/"+font.Name+".xml")
+func (fa *FontAtlas) SaveImage(filePath string) {
+	fa.atlas.SaveImage(filePath)
+	for i := range fa.bmfonts {
+		fa.bmfonts[i].Pages.Page[0].File = path.Base(filePath)
+	}
+}
+
+func (fa *FontAtlas) SaveBMFonts(outputDir string) {
+	for _, bf := range fa.bmfonts {
+		bf.Save(filepath.Join(outputDir, bf.Info.Face+".bmfont"))
 	}
 }

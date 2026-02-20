@@ -6,8 +6,7 @@ import (
 	"image/draw"
 	"log"
 	"os"
-	"path"
-	"pixel-tools/pkg/fileutil"
+	"pixel-tools/pkg/file/png"
 	"sort"
 )
 
@@ -15,60 +14,72 @@ func New(name string) *Atlas {
 	const initialSize = 16
 
 	return &Atlas{
-		name:    name,
-		size:    initialSize,
-		skyline: make([]int, initialSize),
+		name:        name,
+		size:        initialSize,
+		spriteIndex: make(map[string]int),
+		skyline:     make([]int, initialSize),
 	}
 }
 
 type Atlas struct {
 	name string
 
-	tiles   []frame
-	sprites []frame
+	tiles   []Frame
+	sprites []Frame
+
+	spriteIndex map[string]int
 
 	size    int
 	skyline []int
 }
 
-type frame struct {
-	name string
-	img  image.Image
-	x, y int
-	w, h int
-	data map[string]any
+type Frame struct {
+	Name  string
+	Image image.Image
+	X, Y  int
+	W, H  int
+	Data  map[string]any
 }
 
 func (a *Atlas) Size() int { return a.size }
 
+func (a *Atlas) GetSprite(name string) *Frame {
+	idx, ok := a.spriteIndex[name]
+	if !ok {
+		return nil
+	}
+	return &a.sprites[idx]
+}
+
 func (a *Atlas) AddTile(tile image.Image) {
-	if len(a.tiles) > 0 && !tile.Bounds().Size().Eq(a.tiles[0].img.Bounds().Size()) {
+	if len(a.tiles) > 0 && !tile.Bounds().Size().Eq(a.tiles[0].Image.Bounds().Size()) {
 		log.Fatalf("All tiles must have the same size")
 	}
-	a.tiles = append(a.tiles, frame{
-		img: tile,
-		w:   tile.Bounds().Size().X,
-		h:   tile.Bounds().Size().Y,
+	a.tiles = append(a.tiles, Frame{
+		Image: tile,
+		W:     tile.Bounds().Size().X,
+		H:     tile.Bounds().Size().Y,
 	})
 }
 
 func (a *Atlas) AddSprite(name string, sprite image.Image, data map[string]any) {
-	a.sprites = append(a.sprites, frame{
-		name: name,
-		img:  sprite,
-		w:    sprite.Bounds().Size().X,
-		h:    sprite.Bounds().Size().Y,
-		data: data,
+	a.spriteIndex[name] = len(a.sprites)
+	a.sprites = append(a.sprites, Frame{
+		Name:  name,
+		Image: sprite,
+		W:     sprite.Bounds().Size().X,
+		H:     sprite.Bounds().Size().Y,
+		Data:  data,
 	})
 }
 
 func (a *Atlas) Pack() {
 	// Sort sprites by size
 	sort.Slice(a.sprites, func(i, j int) bool {
-		iw := a.sprites[i].w
-		ih := a.sprites[i].h
-		jw := a.sprites[j].w
-		jh := a.sprites[j].h
+		iw := a.sprites[i].W
+		ih := a.sprites[i].H
+		jw := a.sprites[j].W
+		jh := a.sprites[j].H
 		if iw*ih > jw*jh {
 			return true
 		}
@@ -77,6 +88,11 @@ func (a *Atlas) Pack() {
 		}
 		return iw > ih
 	})
+
+	// Rebuild index after sorting
+	for i, s := range a.sprites {
+		a.spriteIndex[s.Name] = i
+	}
 
 	// Repack until the size becomes stable
 	lastSize := a.size
@@ -99,19 +115,8 @@ func (a *Atlas) Pack() {
 	}
 }
 
-func (a *Atlas) Save(baseName string) {
+func (a *Atlas) SaveImage(filePath string) {
 	img := image.NewRGBA(image.Rect(0, 0, a.size, a.size))
-	data := RootJson{
-		Meta: Meta{
-			Image:  path.Base(baseName) + ".png",
-			Format: "RGBA8888",
-			Size: Size{
-				W: a.size,
-				H: a.size,
-			},
-			Scale: "1",
-		},
-	}
 
 	for _, tile := range a.tiles {
 		a.drawFrame(img, &tile)
@@ -119,21 +124,42 @@ func (a *Atlas) Save(baseName string) {
 
 	for _, sprite := range a.sprites {
 		a.drawFrame(img, &sprite)
-
-		data.Frames = append(data.Frames, Frame{
-			Filename: sprite.name,
-			Frame:    Rect{X: sprite.x, Y: sprite.y, W: sprite.w, H: sprite.h},
-			Data:     sprite.data,
-		})
 	}
 
-	fileutil.WriteImage(img, baseName+".png")
+	png.Write(img, filePath)
+}
+
+func (a *Atlas) SaveJSON(filePath string, imagePath string) {
+	data := rootJson{
+		Meta: meta{
+			Image:  imagePath,
+			Format: "RGBA8888",
+			Size: size{
+				W: a.size,
+				H: a.size,
+			},
+			Scale: "1",
+		},
+	}
+
+	for _, s := range a.sprites {
+		data.Frames = append(data.Frames, frame{
+			Filename: s.Name,
+			Frame: rect{
+				X: s.X,
+				Y: s.Y,
+				W: s.W,
+				H: s.H,
+			},
+			Data: s.Data,
+		})
+	}
 
 	atlasJSON, err := json.MarshalIndent(data, "", "  ")
 	if err != nil {
 		log.Fatalf("Failed to encode atlas JSON: %v", err)
 	}
-	err = os.WriteFile(baseName+".atlas", atlasJSON, 0644)
+	err = os.WriteFile(filePath, atlasJSON, 0644)
 	if err != nil {
 		log.Fatalf("Failed to write atlas JSON: %v", err)
 	}
@@ -146,18 +172,18 @@ func (a *Atlas) setSkyline(level int) {
 	}
 }
 
-func (a *Atlas) packSprite(f *frame) {
+func (a *Atlas) packSprite(f *Frame) {
 	x := a.findBestPosition(f)
-	f.x = x
-	f.y = a.skyline[x]
-	a.insertFrame(x, f.w, f.h)
+	f.X = x
+	f.Y = a.skyline[x]
+	a.insertFrame(x, f.W, f.H)
 }
 
-func (a *Atlas) findBestPosition(f *frame) int {
+func (a *Atlas) findBestPosition(f *Frame) int {
 	bestX := -1
 	for x, y := range a.skyline {
 		// If we don't fit into the frame, then skip
-		if !a.isFitting(x, f.w, f.h) {
+		if !a.isFitting(x, f.W, f.H) {
 			continue
 		}
 		// If we already have a candidate best point - compare with it and discard if we are not better
@@ -203,7 +229,7 @@ func (a *Atlas) insertFrame(x int, w int, h int) {
 	}
 }
 
-func (a *Atlas) drawFrame(dstImage *image.RGBA, f *frame) {
-	draw.Draw(dstImage, image.Rect(f.x, f.y, f.x+f.w, f.y+f.h),
-		f.img, f.img.Bounds().Min, draw.Src)
+func (a *Atlas) drawFrame(dstImage *image.RGBA, f *Frame) {
+	draw.Draw(dstImage, image.Rect(f.X, f.Y, f.X+f.W, f.Y+f.H),
+		f.Image, f.Image.Bounds().Min, draw.Src)
 }

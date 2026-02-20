@@ -3,7 +3,7 @@ package main
 import (
 	"fmt"
 	"path/filepath"
-	"pixel-tools/pkg/fileutil"
+	"pixel-tools/pkg/file/png"
 
 	"pixel-tools/cmd/recolor/lut"
 	"pixel-tools/cmd/recolor/util"
@@ -24,7 +24,7 @@ func main() {
 		for _, srcFile := range util.FindPairs(ref.Folder, ref.OriginalSuffix, ref.RecoloredSuffix) {
 			dstFile := util.ReplaceSuffix(srcFile, ref.OriginalSuffix, ref.RecoloredSuffix)
 			fmt.Println("Using reference images", filepath.Base(srcFile), "and", filepath.Base(dstFile))
-			l.AddImageMapping(fileutil.ReadImage(srcFile), fileutil.ReadImage(dstFile))
+			l.AddImageMapping(png.Read(srcFile), png.Read(dstFile))
 		}
 	}
 	if ref.ResultingLUT != "" {
@@ -39,9 +39,9 @@ func main() {
 		for _, srcFile := range util.FindFiles(recolor.Folder, recolor.OriginalSuffix) {
 			dstFile := util.ReplaceSuffix(srcFile, recolor.OriginalSuffix, recolor.RecoloredSuffix)
 			fmt.Println("Applying LUT to image", srcFile, "saving as", dstFile)
-			srcImage := fileutil.ReadImage(srcFile)
+			srcImage := png.Read(srcFile)
 			dstImage := l.ApplyToImage(srcImage)
-			fileutil.WriteImage(dstImage, dstFile)
+			png.Write(dstImage, dstFile)
 		}
 	}
 }

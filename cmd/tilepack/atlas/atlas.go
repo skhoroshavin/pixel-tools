@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"image"
 	"log"
+	"path"
+	"pixel-tools/cmd/tilepack/tmj"
 
 	atlaspkg "pixel-tools/pkg/atlas"
 
@@ -110,7 +112,8 @@ func (a *Atlas) Pack() *tsx.Tileset {
 }
 
 func (a *Atlas) Save(baseName string) {
-	a.atlas.Save(baseName)
+	a.atlas.SaveImage(baseName+".png")
+	a.atlas.SaveJSON(baseName+".atlas", path.Base(baseName)+".png")
 }
 
 func (a *Atlas) findTile(id tsx.GlobalTileID) *tsx.Tile {
@@ -169,4 +172,29 @@ func (a *Atlas) buildTileset() *tsx.Tileset {
 	}
 
 	return tileset
+}
+
+func convertTileData(tile *tsx.Tile) map[string]any {
+	res := make(map[string]any)
+
+	animation := tmj.ConvertAnimation(tile.Animation)
+	if len(animation) > 0 {
+		res["animation"] = animation
+	}
+
+	objectGroup := tmj.ConvertOptionalObjectGroup(tile.ObjectGroup)
+	if objectGroup != nil {
+		res["objectgroup"] = objectGroup
+	}
+
+	properties := tmj.ConvertProperties(tile.Properties)
+	if len(properties) > 0 {
+		res["properties"] = properties
+	}
+
+	if len(res) == 0 {
+		return nil
+	}
+
+	return res
 }

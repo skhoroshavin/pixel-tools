@@ -1,29 +1,29 @@
 package atlas
 
-type RootJson struct {
-	Meta   Meta    `json:"meta"`
-	Frames []Frame `json:"frames"`
+type rootJson struct {
+	Meta   meta    `json:"meta"`
+	Frames []frame `json:"frames"`
 }
 
-type Meta struct {
+type meta struct {
 	Image  string `json:"image"`
 	Format string `json:"format"`
-	Size   Size   `json:"size"`
+	Size   size   `json:"size"`
 	Scale  string `json:"scale"`
 }
 
-type Size struct {
+type size struct {
 	W int `json:"w"`
 	H int `json:"h"`
 }
 
-type Frame struct {
+type frame struct {
 	Filename string         `json:"filename"`
-	Frame    Rect           `json:"frame"`
+	Frame    rect           `json:"frame"`
 	Data     map[string]any `json:"data,omitempty"`
 }
 
-type Rect struct {
+type rect struct {
 	X int `json:"x"`
 	Y int `json:"y"`
 	W int `json:"w"`

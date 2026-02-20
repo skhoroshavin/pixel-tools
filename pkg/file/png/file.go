@@ -1,17 +1,16 @@
-package fileutil
+package png
 
 import (
 	"image"
 	"image/png"
 	"log"
 	"os"
-	"sync"
 )
 
-// ReadImage loads a PNG image from the given path and returns it as *image.RGBA.
+// Read loads a PNG image from the given path and returns it as *image.RGBA.
 // It logs a fatal error if the file cannot be opened or decoded.
-func ReadImage(path string) *image.RGBA {
-	f, err := os.Open(path)
+func Read(filePath string) *image.RGBA {
+	f, err := os.Open(filePath)
 	if err != nil {
 		log.Fatalf("Failed to open image: %v", err)
 	}
@@ -37,10 +36,10 @@ func ReadImage(path string) *image.RGBA {
 	return rgba
 }
 
-// WriteImage saves an image to the given path as PNG.
+// Write saves an image to the given path as PNG.
 // It logs a fatal error if the file cannot be created or encoded.
-func WriteImage(img image.Image, path string) {
-	f, err := os.Create(path)
+func Write(img image.Image, filePath string) {
+	f, err := os.Create(filePath)
 	if err != nil {
 		log.Fatalf("Failed to open image: %v", err)
 	}
@@ -50,23 +49,3 @@ func WriteImage(img image.Image, path string) {
 		log.Fatalf("Failed to encode image: %v", err)
 	}
 }
-
-// GetImage loads an image from the given path with caching.
-// Subsequent calls for the same path return the cached image.
-func GetImage(path string) *image.RGBA {
-	muImgCache.Lock()
-	defer muImgCache.Unlock()
-
-	if img, ok := imgCache[path]; ok {
-		return img
-	}
-
-	img := ReadImage(path)
-	imgCache[path] = img
-	return img
-}
-
-var (
-	muImgCache sync.Mutex
-	imgCache   = make(map[string]*image.RGBA)
-)
