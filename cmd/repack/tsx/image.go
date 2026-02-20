@@ -3,8 +3,7 @@ package tsx
 import (
 	"image"
 	"path/filepath"
-
-	"pixel-tools/pkg/imgutil"
+	"pixel-tools/pkg/fileutil"
 )
 
 type Image struct {
@@ -16,5 +15,5 @@ type Image struct {
 }
 
 func (i *Image) PostLoad(basePath string) {
-	i.Data = imgutil.GetImage(filepath.Join(basePath, i.Source))
+	i.Data = fileutil.GetImage(filepath.Join(basePath, i.Source))
 }

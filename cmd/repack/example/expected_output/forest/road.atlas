@@ -1,0 +1,51 @@
+{
+  "meta": {
+    "image": "road.png",
+    "format": "RGBA8888",
+    "size": {
+      "w": 256,
+      "h": 256
+    },
+    "scale": "1"
+  },
+  "frames": [
+    {
+      "filename": "1000000",
+      "frame": {
+        "x": 0,
+        "y": 64,
+        "w": 32,
+        "h": 32
+      },
+      "objectgroup": {
+        "name": "",
+        "type": "objectgroup",
+        "opacity": 1,
+        "visible": true,
+        "x": 0,
+        "y": 0,
+        "objects": [
+          {
+            "name": "",
+            "type": "",
+            "x": 2,
+            "y": 20,
+            "width": 28,
+            "height": 10,
+            "rotation": 0
+          }
+        ],
+        "properties": null
+      }
+    },
+    {
+      "filename": "1000001",
+      "frame": {
+        "x": 32,
+        "y": 64,
+        "w": 32,
+        "h": 32
+      }
+    }
+  ]
+}

@@ -76,8 +76,21 @@ for details on all available options.
 
 ## Terms of use
 
+### Code
+
 All tools are free to download and use for any purpose, including commercial
 projects. Full source code is available on GitHub under GPL3 license, which
 means you're also free to modify and redistribute these tools - the main
 restriction is that if (and only if) you're redistributing modified versions,
 you must also provide source code of your modifications to your customers.
+See the file [LICENSE](https://github.com/skhoroshavin/phaser-pixui/blob/main/LICENSE)
+for the full license text.
+
+### Example art assets
+
+The example project included in this repository uses pixel art assets created
+by Gabriel Lima aka [tiopalada](https://tiopalada.itch.io), with small modifications
+by me. Big thanks to him for creating beautiful pixel art and putting it into the
+public domain. His work is licensed under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/),
+which means it can be freely shared and used, even commercially, but attribution
+to original author is required, as well as indication whether it was modified.

@@ -22,13 +22,16 @@ clean:
 	rm -rf $(BINDIR)
 	rm -rf cmd/fontpack/example/output
 
-test: test-fontpack recolor repack
+test: test-fontpack test-repack recolor
 
 test-fontpack: fontpack
 	@mkdir -p cmd/fontpack/example/output
 	cd cmd/fontpack/example && ../../../$(BINDIR)/fontpack fonts.json output
-	@echo "Verifying output files..."
-	@test -f cmd/fontpack/example/output/mana_branches.xml || (echo "Missing mana_branches.xml" && exit 1)
-	@test -f cmd/fontpack/example/output/mana_roots.xml || (echo "Missing mana_roots.xml" && exit 1)
-	@test -f cmd/fontpack/example/output/mana_trunk.xml || (echo "Missing mana_trunk.xml" && exit 1)
-	@echo "All font files generated successfully!"
+	@diff -r cmd/fontpack/example/output cmd/fontpack/example/expected_output || (echo "FAIL: fontpack output differs from expected" && exit 1)
+	echo "SUCCESS: fontpack output is identical to expected"
+
+test-repack: repack
+	@mkdir -p cmd/repack/example/output
+	cd cmd/repack/example && ../../../$(BINDIR)/repack areas output
+	@diff -r cmd/repack/example/output cmd/repack/example/expected_output || (echo "FAIL: repack output differs from expected" && exit 1)
+	echo "SUCCESS: repack output is identical to expected"

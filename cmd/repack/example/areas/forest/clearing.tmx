@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<map version="1.10" tiledversion="1.11.2" orientation="orthogonal" renderorder="right-down" width="10" height="10" tilewidth="32" tileheight="32" infinite="0" nextlayerid="4" nextobjectid="8">
+ <tileset firstgid="1" source="../../tilesets/wilderness.tsx"/>
+ <layer id="1" name="Grass" width="10" height="10">
+  <data encoding="csv">
+37,37,39,37,38,14,39,14,38,37,
+14,39,38,38,39,39,39,37,14,37,
+14,39,38,37,37,38,14,38,39,39,
+38,39,38,38,39,39,39,14,37,39,
+37,14,39,14,37,39,14,38,14,38,
+37,37,14,38,14,38,38,38,14,14,
+39,39,39,14,37,39,38,14,39,37,
+37,39,38,38,14,38,38,14,37,39,
+39,14,39,39,14,39,37,37,14,14,
+39,38,38,38,38,38,39,14,38,14
+</data>
+ </layer>
+ <layer id="2" name="Trees" width="10" height="10">
+  <data encoding="csv">
+59,58,59,71,59,58,59,58,59,58,
+71,70,71,70,71,70,58,70,71,70,
+59,58,83,82,83,82,70,58,70,71,
+71,70,60,0,0,0,82,70,71,70,
+70,71,72,0,0,0,0,82,83,82,
+58,59,60,0,0,0,0,0,0,0,
+70,71,72,0,0,0,0,0,46,47,
+71,70,47,46,47,0,0,46,58,59,
+59,58,59,71,59,47,46,58,59,58,
+71,70,71,70,71,70,71,70,71,70
+</data>
+ </layer>
+ <objectgroup id="3" name="Objects">
+  <object id="1" gid="53" x="272" y="163" width="32" height="32"/>
+  <object id="2" gid="64" x="160" y="190" width="32" height="32"/>
+ </objectgroup>
+</map>

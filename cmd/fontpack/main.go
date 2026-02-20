@@ -2,10 +2,12 @@ package main
 
 import (
 	"fmt"
+	"image"
 	"os"
+	"pixel-tools/pkg/fileutil"
+	"pixel-tools/pkg/imgutil"
 
 	"pixel-tools/cmd/fontpack/util"
-	"pixel-tools/pkg/imgutil"
 )
 
 func main() {
@@ -22,7 +24,7 @@ func main() {
 
 	fontConfig := util.ReadFontConfig(fontConfigFile)
 	for _, font := range fontConfig.Fonts {
-		img := imgutil.ReadImage(font.Name + ".png")
+		img := fileutil.ReadImage(font.Name + ".png")
 
 		bmfont := util.BMFont{
 			Info: util.FontInfo{
@@ -58,9 +60,10 @@ func main() {
 			x := 0
 			for _, chr := range str {
 				bmfont.Chars.Count++
-				rightMargin := imgutil.GetRightMargin(img, x*font.Size, y*font.Size, font.Size, font.Size)
-				topMargin := imgutil.GetTopMargin(img, x*font.Size, y*font.Size, font.Size, font.Size)
-				bottomMargin := imgutil.GetBottomMargin(img, x*font.Size, y*font.Size, font.Size, font.Size)
+				glyph := img.SubImage(image.Rect(x*font.Size, y*font.Size, (x+1)*font.Size, (y+1)*font.Size))
+				rightMargin := imgutil.GetRightMargin(glyph)
+				topMargin := imgutil.GetTopMargin(glyph)
+				bottomMargin := imgutil.GetBottomMargin(glyph)
 
 				bmfont.Chars.Char = append(bmfont.Chars.Char, util.Char{
 					ID:       int(chr),
