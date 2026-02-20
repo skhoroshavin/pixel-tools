@@ -8,7 +8,7 @@ type Property struct {
 	Value string `json:"value"`
 }
 
-func convertProperty(prop tsx.Property) Property {
+func ConvertProperty(prop tsx.Property) Property {
 	return Property{
 		Name:  prop.Name,
 		Type:  prop.Type,
@@ -16,10 +16,10 @@ func convertProperty(prop tsx.Property) Property {
 	}
 }
 
-func convertProperties(props []tsx.Property) []Property {
+func ConvertProperties(props []tsx.Property) []Property {
 	var res []Property
 	for _, p := range props {
-		res = append(res, convertProperty(p))
+		res = append(res, ConvertProperty(p))
 	}
 	return res
 }

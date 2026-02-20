@@ -116,11 +116,6 @@ func (t *Tile) CopyImageFrom(srcTile *Tile) {
 	dstX := (int(t.ID) % dstColumns) * tileWidth
 	dstY := (int(t.ID) / dstColumns) * tileHeight
 
-	dstImage, ok := t.Tileset.Image.Data.(draw.Image)
-	if !ok {
-		log.Fatalf("Cannot draw to tileset image")
-	}
-
-	draw.Draw(dstImage, image.Rect(dstX, dstY, dstX+tileWidth, dstY+tileHeight),
+	draw.Draw(t.Tileset.Image.Data, image.Rect(dstX, dstY, dstX+tileWidth, dstY+tileHeight),
 		srcTile.Tileset.Image.Data, image.Pt(srcX, srcY), draw.Src)
 }

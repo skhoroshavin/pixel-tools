@@ -1,33 +1,27 @@
 package atlas
 
 import (
-	"encoding/json"
 	"fmt"
 	"image"
-	"image/draw"
 	"log"
-	"os"
-	"path"
-	"pixel-tools/pkg/fileutil"
-	"sort"
+
+	atlaspkg "pixel-tools/pkg/atlas"
 
 	"pixel-tools/cmd/tilepack/tsx"
 )
 
 func New(name string, tilesets []*tsx.Tileset) *Atlas {
-	const initialSize = 16
-
 	return &Atlas{
+		atlas:           atlaspkg.New(name),
 		name:            name,
 		tilesets:        tilesets,
 		repackedTiles:   make(map[tsx.GlobalTileID]tsx.GlobalTileID),
 		repackedSprites: make(map[tsx.GlobalTileID]tsx.GlobalTileID),
-		size:            initialSize,
-		skyline:         make([]int, initialSize),
 	}
 }
 
 type Atlas struct {
+	atlas    *atlaspkg.Atlas
 	name     string
 	tilesets []*tsx.Tileset
 
@@ -35,15 +29,11 @@ type Atlas struct {
 	repackedSprites map[tsx.GlobalTileID]tsx.GlobalTileID
 	tiles           []*Sprite
 	sprites         []*Sprite
-
-	size    int
-	skyline []int
 }
 
 type Sprite struct {
-	ID    string
-	Tile  *tsx.Tile
-	Frame Rect
+	ID   string
+	Tile *tsx.Tile
 }
 
 func (a *Atlas) UseTile(tileID tsx.GlobalTileID) tsx.GlobalTileID {
@@ -52,18 +42,26 @@ func (a *Atlas) UseTile(tileID tsx.GlobalTileID) tsx.GlobalTileID {
 	}
 
 	tile := a.findTile(tileID)
-	if len(a.tiles) > 0 && !tile.Tileset.HasSameTileSize(a.tiles[0].Tile.Tileset) {
-		log.Fatalf("All tiles must have the same size, please use object layer instead")
+	if len(a.tiles) > 0 {
+		firstTile := a.tiles[0].Tile
+		if tile.Tileset.TileWidth != firstTile.Tileset.TileWidth || tile.Tileset.TileHeight != firstTile.Tileset.TileHeight {
+			log.Fatalf("All tiles must have the same size, please use object layer instead")
+		}
 	}
 
 	repackedTileID := tsx.GlobalTileID(len(a.repackedTiles) + 1)
 	a.repackedTiles[tileID] = repackedTileID
+
+	w := tile.Tileset.TileWidth
+	h := tile.Tileset.TileHeight
+	srcX := (int(tile.ID) % tile.Tileset.Columns) * w
+	srcY := (int(tile.ID) / tile.Tileset.Columns) * h
+
+	subImg := tile.Tileset.Image.Data.SubImage(image.Rect(srcX, srcY, srcX+w, srcY+h))
+
+	a.atlas.AddTile(subImg)
 	a.tiles = append(a.tiles, &Sprite{
 		Tile: tile,
-		Frame: Rect{
-			W: tile.Tileset.TileWidth,
-			H: tile.Tileset.TileHeight,
-		},
 	})
 
 	for _, anim := range tile.Animation {
@@ -81,23 +79,23 @@ func (a *Atlas) UseSprite(tileID tsx.GlobalTileID) tsx.GlobalTileID {
 	repackedTileID := tsx.GlobalTileID(1000000 + len(a.repackedSprites))
 	a.repackedSprites[tileID] = repackedTileID
 
-	var frame Rect
+	var subImg image.Image
 	if tile.Image == nil {
-		frame = Rect{
-			W: tile.Tileset.TileWidth,
-			H: tile.Tileset.TileHeight,
-		}
+		w := tile.Tileset.TileWidth
+		h := tile.Tileset.TileHeight
+		srcX := (int(tile.ID) % tile.Tileset.Columns) * w
+		srcY := (int(tile.ID) / tile.Tileset.Columns) * h
+		subImg = tile.Tileset.Image.Data.SubImage(image.Rect(srcX, srcY, srcX+w, srcY+h))
 	} else {
-		frame = Rect{
-			W: tile.Width,
-			H: tile.Height,
-		}
+		subImg = tile.Image.Data.SubImage(image.Rect(tile.X, tile.Y, tile.X+tile.Width, tile.Y+tile.Height))
 	}
 
+	data := convertTileData(tile)
+
+	a.atlas.AddSprite(fmt.Sprintf("%d", repackedTileID), subImg, data)
 	a.sprites = append(a.sprites, &Sprite{
-		ID:    fmt.Sprintf("%d", repackedTileID),
-		Tile:  tile,
-		Frame: frame,
+		ID:   fmt.Sprintf("%d", repackedTileID),
+		Tile: tile,
 	})
 
 	for _, anim := range tile.Animation {
@@ -107,121 +105,12 @@ func (a *Atlas) UseSprite(tileID tsx.GlobalTileID) tsx.GlobalTileID {
 }
 
 func (a *Atlas) Pack() *tsx.Tileset {
-	// Sort sprites by size
-	sort.Slice(a.sprites, func(i, j int) bool {
-		iw := a.sprites[i].Frame.W
-		ih := a.sprites[i].Frame.H
-		jw := a.sprites[j].Frame.W
-		jh := a.sprites[j].Frame.H
-		if iw*ih > jw*jh {
-			return true
-		}
-		if iw*ih < jw*jh {
-			return false
-		}
-		return iw > ih
-	})
-
-	// Repack until the size becomes stable
-	lastSize := a.size
-	for {
-		a.setSkyline(0)
-		for _, tile := range a.tiles {
-			a.packSprite(tile)
-		}
-
-		a.setSkyline(a.skyline[0])
-		for _, sprite := range a.sprites {
-			a.packSprite(sprite)
-		}
-
-		if lastSize != a.size {
-			lastSize = a.size
-		} else {
-			return a.buildTileset()
-		}
-	}
+	a.atlas.Pack()
+	return a.buildTileset()
 }
 
 func (a *Atlas) Save(baseName string) {
-	img := image.NewRGBA(image.Rect(0, 0, a.size, a.size))
-	data := RootJson{
-		Meta: Meta{
-			Image:  path.Base(baseName) + ".png",
-			Format: "RGBA8888",
-			Size: Size{
-				W: a.size,
-				H: a.size,
-			},
-			Scale: "1",
-		},
-	}
-
-	for _, tile := range a.tiles {
-		dstX := tile.Frame.X
-		dstY := tile.Frame.Y
-		w := tile.Frame.W
-		h := tile.Frame.H
-
-		srcTile := tile.Tile
-		srcColumns := srcTile.Tileset.Columns
-		srcX := (int(srcTile.ID) % srcColumns) * w
-		srcY := (int(srcTile.ID) / srcColumns) * h
-
-		draw.Draw(img, image.Rect(dstX, dstY, dstX+w, dstY+h),
-			srcTile.Tileset.Image.Data, image.Pt(srcX, srcY), draw.Src)
-	}
-
-	for _, sprite := range a.sprites {
-		dstX := sprite.Frame.X
-		dstY := sprite.Frame.Y
-		w := sprite.Frame.W
-		h := sprite.Frame.H
-
-		srcTile := sprite.Tile
-		srcColumns := srcTile.Tileset.Columns
-		var srcX, srcY int
-		var srcImage image.Image
-		if srcTile.Image == nil {
-			srcX = (int(srcTile.ID) % srcColumns) * w
-			srcY = (int(srcTile.ID) / srcColumns) * h
-			srcImage = srcTile.Tileset.Image.Data
-		} else {
-			srcX = srcTile.X
-			srcY = srcTile.Y
-			srcImage = srcTile.Image.Data
-		}
-
-		draw.Draw(img, image.Rect(dstX, dstY, dstX+w, dstY+h),
-			srcImage, image.Pt(srcX, srcY), draw.Src)
-
-		data.Frames = append(data.Frames, Frame{
-			Filename: sprite.ID,
-			Frame:    sprite.Frame,
-
-			Animation:   convertAnimation(srcTile.Animation),
-			ObjectGroup: convertObjectGroup(srcTile.ObjectGroup),
-			Properties:  convertProperties(srcTile.Properties),
-		})
-	}
-
-	fileutil.WriteImage(img, baseName+".png")
-
-	atlasJSON, err := json.MarshalIndent(data, "", "  ")
-	if err != nil {
-		log.Fatalf("Failed to encode atlas JSON: %v", err)
-	}
-	err = os.WriteFile(baseName+".atlas", atlasJSON, 0644)
-	if err != nil {
-		log.Fatalf("Failed to write atlas JSON: %v", err)
-	}
-}
-
-func (a *Atlas) setSkyline(level int) {
-	a.skyline = make([]int, a.size)
-	for i := range a.skyline {
-		a.skyline[i] = level
-	}
+	a.atlas.Save(baseName)
 }
 
 func (a *Atlas) findTile(id tsx.GlobalTileID) *tsx.Tile {
@@ -234,63 +123,6 @@ func (a *Atlas) findTile(id tsx.GlobalTileID) *tsx.Tile {
 	return nil
 }
 
-func (a *Atlas) packSprite(sprite *Sprite) {
-	x := a.findBestPosition(sprite)
-	sprite.Frame.X = x
-	sprite.Frame.Y = a.skyline[x]
-	a.insertFrame(x, sprite.Frame)
-}
-
-func (a *Atlas) findBestPosition(sprite *Sprite) int {
-	bestX := -1
-	for x, y := range a.skyline {
-		// If we don't fit into the frame, then skip
-		if !a.isFitting(x, sprite.Frame) {
-			continue
-		}
-		// If we already have candidate best point - compare with it and discard if we are not better
-		if bestX != -1 && a.skyline[bestX] <= y {
-			continue
-		}
-		bestX = x
-	}
-	// If we found the best point - return it
-	if bestX >= 0 {
-		return bestX
-	}
-	// Otherwise double the atlas size and try again
-	a.skyline = append(a.skyline, make([]int, a.size)...)
-	a.size *= 2
-	return a.findBestPosition(sprite)
-}
-
-func (a *Atlas) isFitting(x int, frame Rect) bool {
-	y := a.skyline[x]
-	// Return false if we don't fit to frame
-	if (x+frame.W > a.size) || (y+frame.H > a.size) {
-		return false
-	}
-	// Check whether we overlap with the next skyline points
-	for nx := x + 1; nx < len(a.skyline); nx++ {
-		// Point is outside the sprite - we can stop iterating, safely assuming that sprite fits
-		if nx >= x+frame.W {
-			return true
-		}
-		// Point is inside the sprite - we can stop iterating, safely assuming that sprite doesn't fit
-		if a.skyline[nx] > y {
-			return false
-		}
-	}
-	return true
-}
-
-func (a *Atlas) insertFrame(x int, frame Rect) {
-	cy := a.skyline[x] + frame.H
-	for cx := x; cx < x+frame.W; cx++ {
-		a.skyline[cx] = cy
-	}
-}
-
 func (a *Atlas) buildTileset() *tsx.Tileset {
 	tileCount := len(a.tiles)
 	tileWidth := 16
@@ -300,7 +132,8 @@ func (a *Atlas) buildTileset() *tsx.Tileset {
 		tileHeight = a.tiles[0].Tile.Tileset.TileHeight
 	}
 
-	tileColumns := a.size / tileWidth
+	size := a.atlas.Size()
+	tileColumns := size / tileWidth
 	tileset := &tsx.Tileset{
 		FirstGID:   1,
 		Name:       a.name,
@@ -310,8 +143,8 @@ func (a *Atlas) buildTileset() *tsx.Tileset {
 		Columns:    tileColumns,
 		Image: &tsx.Image{
 			Source: a.name + ".png",
-			Width:  a.size,
-			Height: a.size,
+			Width:  size,
+			Height: size,
 		},
 	}
 

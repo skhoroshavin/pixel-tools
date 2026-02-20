@@ -9,6 +9,7 @@ test: test-fontpack recolor test-tilepack
 clean:
 	rm -rf bin
 	rm -rf cmd/fontpack/example/output
+	rm -rf cmd/tilepack/example/output
 
 fontpack:
 	@mkdir -p bin

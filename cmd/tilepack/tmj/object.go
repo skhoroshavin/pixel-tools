@@ -37,7 +37,7 @@ func convertObject(obj tsx.Object) Object {
 		Rotation:   obj.Rotation,
 		GID:        obj.GID,
 		Polygon:    convertPolygon(obj.Polygon),
-		Properties: convertProperties(obj.Properties),
+		Properties: ConvertProperties(obj.Properties),
 	}
 }
 

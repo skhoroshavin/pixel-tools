@@ -1,7 +1,6 @@
 package tmx
 
 import (
-	"pixel-tools/cmd/tilepack/atlas"
 	"pixel-tools/cmd/tilepack/tsx"
 )
 
@@ -16,31 +15,4 @@ type Map struct {
 	Tilesets    []*tsx.Tileset `xml:"tileset"`
 	Layers      []*Layer       `xml:",any"`
 	Properties  []tsx.Property `xml:"properties>property"`
-
-	atlas *atlas.Atlas
-}
-
-func (m *Map) Repack(name string) {
-	for _, layer := range m.Layers {
-		switch {
-		case layer.IsTileLayer():
-			for i, tileID := range layer.Data.Decoded {
-				if tileID != 0 {
-					layer.Data.Decoded[i] = m.atlas.UseTile(tileID.WithoutFlags()).WithFlags(tileID.Flags())
-				}
-			}
-		case layer.IsObjectGroup():
-			for i, obj := range layer.Objects {
-				if obj.GID != 0 {
-					layer.Objects[i].GID = m.atlas.UseSprite(obj.GID.WithoutFlags()).WithFlags(obj.GID.Flags())
-				}
-			}
-		}
-	}
-
-	m.Tilesets = []*tsx.Tileset{m.atlas.Pack()}
-}
-
-func (m *Map) SaveAtlas(baseName string) {
-	m.atlas.Save(baseName)
 }

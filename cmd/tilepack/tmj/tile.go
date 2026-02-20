@@ -21,9 +21,9 @@ func convertTile(t *tsx.Tile) Tile {
 	return Tile{
 		ID:          t.ID,
 		Type:        t.Type,
-		ObjectGroup: convertOptionalObjectGroup(t.ObjectGroup),
-		Animation:   convertAnimation(t.Animation),
-		Properties:  convertProperties(t.Properties),
+		ObjectGroup: ConvertOptionalObjectGroup(t.ObjectGroup),
+		Animation:   ConvertAnimation(t.Animation),
+		Properties:  ConvertProperties(t.Properties),
 	}
 }
 
@@ -35,7 +35,7 @@ func convertTiles(t []*tsx.Tile) []Tile {
 	return res
 }
 
-func convertAnimation(anim []tsx.Frame) []Frame {
+func ConvertAnimation(anim []tsx.Frame) []Frame {
 	res := make([]Frame, len(anim))
 	for i, f := range anim {
 		res[i] = Frame{

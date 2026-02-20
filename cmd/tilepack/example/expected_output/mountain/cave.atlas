@@ -17,25 +17,27 @@
         "w": 32,
         "h": 64
       },
-      "objectgroup": {
-        "name": "",
-        "type": "objectgroup",
-        "opacity": 1,
-        "visible": true,
-        "x": 0,
-        "y": 0,
-        "objects": [
-          {
-            "name": "",
-            "type": "",
-            "x": 0,
-            "y": 45,
-            "width": 31,
-            "height": 19,
-            "rotation": 0
-          }
-        ],
-        "properties": null
+      "data": {
+        "objectgroup": {
+          "name": "",
+          "type": "objectgroup",
+          "opacity": 1,
+          "visible": true,
+          "x": 0,
+          "y": 0,
+          "objects": [
+            {
+              "name": "",
+              "type": "",
+              "x": 0,
+              "y": 45,
+              "width": 31,
+              "height": 19,
+              "rotation": 0
+            }
+          ],
+          "properties": null
+        }
       }
     },
     {
@@ -46,25 +48,27 @@
         "w": 32,
         "h": 32
       },
-      "objectgroup": {
-        "name": "",
-        "type": "objectgroup",
-        "opacity": 1,
-        "visible": true,
-        "x": 0,
-        "y": 0,
-        "objects": [
-          {
-            "name": "",
-            "type": "",
-            "x": 1,
-            "y": 9,
-            "width": 29,
-            "height": 22,
-            "rotation": 0
-          }
-        ],
-        "properties": null
+      "data": {
+        "objectgroup": {
+          "name": "",
+          "type": "objectgroup",
+          "opacity": 1,
+          "visible": true,
+          "x": 0,
+          "y": 0,
+          "objects": [
+            {
+              "name": "",
+              "type": "",
+              "x": 1,
+              "y": 9,
+              "width": 29,
+              "height": 22,
+              "rotation": 0
+            }
+          ],
+          "properties": null
+        }
       }
     },
     {
@@ -75,25 +79,27 @@
         "w": 32,
         "h": 32
       },
-      "objectgroup": {
-        "name": "",
-        "type": "objectgroup",
-        "opacity": 1,
-        "visible": true,
-        "x": 0,
-        "y": 0,
-        "objects": [
-          {
-            "name": "",
-            "type": "",
-            "x": 1,
-            "y": 10,
-            "width": 30,
-            "height": 21,
-            "rotation": 0
-          }
-        ],
-        "properties": null
+      "data": {
+        "objectgroup": {
+          "name": "",
+          "type": "objectgroup",
+          "opacity": 1,
+          "visible": true,
+          "x": 0,
+          "y": 0,
+          "objects": [
+            {
+              "name": "",
+              "type": "",
+              "x": 1,
+              "y": 10,
+              "width": 30,
+              "height": 21,
+              "rotation": 0
+            }
+          ],
+          "properties": null
+        }
       }
     },
     {
@@ -104,25 +110,27 @@
         "w": 32,
         "h": 32
       },
-      "objectgroup": {
-        "name": "",
-        "type": "objectgroup",
-        "opacity": 1,
-        "visible": true,
-        "x": 0,
-        "y": 0,
-        "objects": [
-          {
-            "name": "",
-            "type": "",
-            "x": 5,
-            "y": 13,
-            "width": 23,
-            "height": 19,
-            "rotation": 0
-          }
-        ],
-        "properties": null
+      "data": {
+        "objectgroup": {
+          "name": "",
+          "type": "objectgroup",
+          "opacity": 1,
+          "visible": true,
+          "x": 0,
+          "y": 0,
+          "objects": [
+            {
+              "name": "",
+              "type": "",
+              "x": 5,
+              "y": 13,
+              "width": 23,
+              "height": 19,
+              "rotation": 0
+            }
+          ],
+          "properties": null
+        }
       }
     },
     {
@@ -133,25 +141,27 @@
         "w": 32,
         "h": 32
       },
-      "objectgroup": {
-        "name": "",
-        "type": "objectgroup",
-        "opacity": 1,
-        "visible": true,
-        "x": 0,
-        "y": 0,
-        "objects": [
-          {
-            "name": "",
-            "type": "",
-            "x": 5,
-            "y": 18,
-            "width": 21,
-            "height": 14,
-            "rotation": 0
-          }
-        ],
-        "properties": null
+      "data": {
+        "objectgroup": {
+          "name": "",
+          "type": "objectgroup",
+          "opacity": 1,
+          "visible": true,
+          "x": 0,
+          "y": 0,
+          "objects": [
+            {
+              "name": "",
+              "type": "",
+              "x": 5,
+              "y": 18,
+              "width": 21,
+              "height": 14,
+              "rotation": 0
+            }
+          ],
+          "properties": null
+        }
       }
     },
     {

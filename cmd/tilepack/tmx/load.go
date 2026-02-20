@@ -5,9 +5,7 @@ import (
 	"log"
 	"os"
 	"path/filepath"
-	"strings"
 
-	"pixel-tools/cmd/tilepack/atlas"
 	"pixel-tools/cmd/tilepack/tsx"
 )
 
@@ -39,6 +37,5 @@ func Load(path string) *Map {
 		}
 	}
 
-	res.atlas = atlas.New(strings.TrimSuffix(filepath.Base(path), ".tmx"), res.Tilesets)
 	return &res
 }

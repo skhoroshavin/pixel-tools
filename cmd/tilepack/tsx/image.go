@@ -11,7 +11,7 @@ type Image struct {
 	Width  int    `xml:"width,attr"`
 	Height int    `xml:"height,attr"`
 
-	Data image.Image `xml:"-"`
+	Data *image.RGBA `xml:"-"`
 }
 
 func (i *Image) PostLoad(basePath string) {

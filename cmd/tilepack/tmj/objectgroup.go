@@ -16,7 +16,7 @@ type ObjectGroup struct {
 }
 
 func convertObjectGroup(og tsx.ObjectGroup) ObjectGroup {
-	props := convertProperties(og.Properties)
+	props := ConvertProperties(og.Properties)
 
 	// So far Phaser doesn't load layer.class, so this is a workaround
 	if og.Class != "" {
@@ -39,7 +39,7 @@ func convertObjectGroup(og tsx.ObjectGroup) ObjectGroup {
 	}
 }
 
-func convertOptionalObjectGroup(og tsx.ObjectGroup) *ObjectGroup {
+func ConvertOptionalObjectGroup(og tsx.ObjectGroup) *ObjectGroup {
 	if len(og.Objects) == 0 {
 		return nil
 	}

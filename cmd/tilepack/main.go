@@ -7,9 +7,32 @@ import (
 	"path/filepath"
 	"strings"
 
+	"pixel-tools/cmd/tilepack/atlas"
 	"pixel-tools/cmd/tilepack/tmj"
 	"pixel-tools/cmd/tilepack/tmx"
+	"pixel-tools/cmd/tilepack/tsx"
 )
+
+func repack(m *tmx.Map, a *atlas.Atlas) {
+	for _, layer := range m.Layers {
+		switch {
+		case layer.IsTileLayer():
+			for i, tileID := range layer.Data.Decoded {
+				if tileID != 0 {
+					layer.Data.Decoded[i] = a.UseTile(tileID.WithoutFlags()).WithFlags(tileID.Flags())
+				}
+			}
+		case layer.IsObjectGroup():
+			for i, obj := range layer.Objects {
+				if obj.GID != 0 {
+					layer.Objects[i].GID = a.UseSprite(obj.GID.WithoutFlags()).WithFlags(obj.GID.Flags())
+				}
+			}
+		}
+	}
+
+	m.Tilesets = []*tsx.Tileset{a.Pack()}
+}
 
 func main() {
 	if len(os.Args) != 3 {
@@ -47,10 +70,11 @@ func main() {
 		}
 
 		src := tmx.Load(inputTmx)
-		src.Repack(shortName)
+		a := atlas.New(shortName, src.Tilesets)
+		repack(src, a)
 		dst := tmj.ConvertFromTMX(src)
 
-		src.SaveAtlas(outputAtlas)
+		a.Save(outputAtlas)
 		dst.Save(outputTmj)
 
 		return nil

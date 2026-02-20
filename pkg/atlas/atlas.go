@@ -39,6 +39,8 @@ type frame struct {
 	data map[string]any
 }
 
+func (a *Atlas) Size() int { return a.size }
+
 func (a *Atlas) AddTile(tile image.Image) {
 	if len(a.tiles) > 0 && !tile.Bounds().Size().Eq(a.tiles[0].img.Bounds().Size()) {
 		log.Fatalf("All tiles must have the same size")

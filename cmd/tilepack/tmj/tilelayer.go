@@ -21,7 +21,7 @@ type TileLayer struct {
 }
 
 func convertTileLayer(layer *tmx.TileLayer, layerID int) TileLayer {
-	props := convertProperties(layer.Properties)
+	props := ConvertProperties(layer.Properties)
 	// So far Phaser doesn't load layer.class, so this is a workaround
 	if layer.Class != "" {
 		props = append(props, Property{
