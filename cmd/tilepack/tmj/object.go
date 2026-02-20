@@ -5,7 +5,7 @@ import (
 	"strconv"
 	"strings"
 
-	"pixel-tools/cmd/repack/tsx"
+	"pixel-tools/cmd/tilepack/tsx"
 )
 
 type Object struct {

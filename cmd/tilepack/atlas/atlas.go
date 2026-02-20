@@ -11,7 +11,7 @@ import (
 	"pixel-tools/pkg/fileutil"
 	"sort"
 
-	"pixel-tools/cmd/repack/tsx"
+	"pixel-tools/cmd/tilepack/tsx"
 )
 
 func New(name string, tilesets []*tsx.Tileset) *Atlas {

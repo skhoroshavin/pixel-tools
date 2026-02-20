@@ -7,8 +7,8 @@ import (
 	"path/filepath"
 	"strings"
 
-	"pixel-tools/cmd/repack/atlas"
-	"pixel-tools/cmd/repack/tsx"
+	"pixel-tools/cmd/tilepack/atlas"
+	"pixel-tools/cmd/tilepack/tsx"
 )
 
 func Load(path string) *Map {

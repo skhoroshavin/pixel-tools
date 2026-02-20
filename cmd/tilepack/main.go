@@ -7,13 +7,13 @@ import (
 	"path/filepath"
 	"strings"
 
-	"pixel-tools/cmd/repack/tmj"
-	"pixel-tools/cmd/repack/tmx"
+	"pixel-tools/cmd/tilepack/tmj"
+	"pixel-tools/cmd/tilepack/tmx"
 )
 
 func main() {
 	if len(os.Args) != 3 {
-		println("Usage: repack <input-dir> <output-dir>")
+		println("Usage: tilepack <input-dir> <output-dir>")
 		os.Exit(1)
 	}
 

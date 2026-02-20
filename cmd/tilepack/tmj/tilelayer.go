@@ -1,8 +1,8 @@
 package tmj
 
 import (
-	"pixel-tools/cmd/repack/tmx"
-	"pixel-tools/cmd/repack/tsx"
+	"pixel-tools/cmd/tilepack/tmx"
+	"pixel-tools/cmd/tilepack/tsx"
 )
 
 type TileLayer struct {

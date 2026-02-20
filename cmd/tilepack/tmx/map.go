@@ -1,8 +1,8 @@
 package tmx
 
 import (
-	"pixel-tools/cmd/repack/atlas"
-	"pixel-tools/cmd/repack/tsx"
+	"pixel-tools/cmd/tilepack/atlas"
+	"pixel-tools/cmd/tilepack/tsx"
 )
 
 type Map struct {

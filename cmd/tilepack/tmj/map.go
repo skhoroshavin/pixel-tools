@@ -5,7 +5,7 @@ import (
 	"log"
 	"os"
 
-	"pixel-tools/cmd/repack/tmx"
+	"pixel-tools/cmd/tilepack/tmx"
 )
 
 type Map struct {

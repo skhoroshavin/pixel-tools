@@ -1,7 +1,7 @@
 # pixel-tools
 This is a set of utilities useful for pixel art
 
-## [Repack](repack)
+## [Tilepack](cmd/tilepack)
 
 A CLI tool for repacking and optimizing [Tiled](https://www.mapeditor.org)
 map files (*.tmx) and their associated tilesets. The tool analyzes tile usage
@@ -21,7 +21,7 @@ actually used in the maps.
 ### Usage
 
 ```bash
-repack <source-folder> <destination-folder>
+tilepack <source-folder> <destination-folder>
 ```
 
 This command will:

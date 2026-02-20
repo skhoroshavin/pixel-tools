@@ -3,7 +3,7 @@ name: Release
 on:
   push:
     tags:
-      - 'v*'  # Trigger only on version tags like v1.0.0
+      - 'v*'
 
 jobs:
   build:
@@ -55,7 +55,7 @@ jobs:
 
           cp -v bin/fontpack${EXT} dist/${OUTPUT_NAME}/
           cp -v bin/recolor${EXT} dist/${OUTPUT_NAME}/
-          cp -v bin/repack${EXT} dist/${OUTPUT_NAME}/
+          cp -v bin/tilepack${EXT} dist/${OUTPUT_NAME}/
           cp -v cmd/recolor/recolor-config.yaml dist/${OUTPUT_NAME}/
           cp -v cmd/recolor/tf_to_e.lut dist/${OUTPUT_NAME}/
           if [ "${OS}" = "mac-intel" ] || [ "${OS}" = "mac-m1" ]; then

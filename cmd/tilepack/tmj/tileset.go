@@ -1,6 +1,6 @@
 package tmj
 
-import "pixel-tools/cmd/repack/tsx"
+import "pixel-tools/cmd/tilepack/tsx"
 
 type Tileset struct {
 	FirstGID    tsx.GlobalTileID `json:"firstgid"`

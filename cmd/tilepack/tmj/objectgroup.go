@@ -1,7 +1,7 @@
 package tmj
 
 import (
-	"pixel-tools/cmd/repack/tsx"
+	"pixel-tools/cmd/tilepack/tsx"
 )
 
 type ObjectGroup struct {

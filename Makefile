@@ -1,37 +1,35 @@
-.PHONY: all build clean test fontpack recolor repack test-fontpack
-
-BINDIR := bin
+.PHONY: all build test clean fontpack recolor tilepack test-fontpack test-tilepack
 
 all: build
 
 build: fontpack recolor repack
 
-fontpack:
-	@mkdir -p $(BINDIR)
-	go build -o $(BINDIR)/fontpack ./cmd/fontpack
-
-recolor:
-	@mkdir -p $(BINDIR)
-	go build -o $(BINDIR)/recolor ./cmd/recolor
-
-repack:
-	@mkdir -p $(BINDIR)
-	go build -o $(BINDIR)/repack ./cmd/repack
+test: test-fontpack recolor test-tilepack
 
 clean:
-	rm -rf $(BINDIR)
+	rm -rf bin
 	rm -rf cmd/fontpack/example/output
 
-test: test-fontpack test-repack recolor
+fontpack:
+	@mkdir -p bin
+	go build -o bin/fontpack ./cmd/fontpack
+
+recolor:
+	@mkdir -p bin
+	go build -o bin/recolor ./cmd/recolor
+
+tilepack:
+	@mkdir -p bin
+	go build -o bin/tilepack ./cmd/tilepack
 
 test-fontpack: fontpack
 	@mkdir -p cmd/fontpack/example/output
-	cd cmd/fontpack/example && ../../../$(BINDIR)/fontpack fonts.json output
+	cd cmd/fontpack/example && ../../../bin/fontpack fonts.json output
 	@diff -r cmd/fontpack/example/output cmd/fontpack/example/expected_output || (echo "FAIL: fontpack output differs from expected" && exit 1)
 	echo "SUCCESS: fontpack output is identical to expected"
 
-test-repack: repack
-	@mkdir -p cmd/repack/example/output
-	cd cmd/repack/example && ../../../$(BINDIR)/repack areas output
-	@diff -r cmd/repack/example/output cmd/repack/example/expected_output || (echo "FAIL: repack output differs from expected" && exit 1)
-	echo "SUCCESS: repack output is identical to expected"
+test-tilepack: tilepack
+	@mkdir -p cmd/tilepack/example/output
+	cd cmd/tilepack/example && ../../../bin/tilepack areas output
+	@diff -r cmd/tilepack/example/output cmd/tilepack/example/expected_output || (echo "FAIL: tilepack output differs from expected" && exit 1)
+	echo "SUCCESS: tilepack output is identical to expected"
