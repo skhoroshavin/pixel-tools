@@ -11,11 +11,10 @@ import (
 	"sort"
 )
 
-func New(name string) *Atlas {
+func New() *Atlas {
 	const initialSize = 16
 
 	return &Atlas{
-		name:        name,
 		width:       initialSize,
 		height:      initialSize,
 		spriteIndex: make(map[string]int),
@@ -24,10 +23,9 @@ func New(name string) *Atlas {
 }
 
 type Atlas struct {
-	name string
-
-	tiles   []Frame
-	sprites []Frame
+	tiles     []Frame
+	sprites   []Frame
+	frameRefs []FrameRef
 
 	spriteIndex map[string]int
 
@@ -37,11 +35,20 @@ type Atlas struct {
 }
 
 type Frame struct {
-	Name  string
-	Image image.Image
-	X, Y  int
-	W, H  int
-	Data  map[string]any
+	Name      string
+	Image     image.Image
+	X, Y      int
+	W, H      int
+	NineSlice *NineSlice
+	Data      map[string]any
+}
+
+type NineSlice = rect
+
+type FrameRef struct {
+	Name        string
+	SourceFrame string
+	Data        map[string]any
 }
 
 func (a *Atlas) Width() int { return a.width }
@@ -67,14 +74,23 @@ func (a *Atlas) AddTile(tile image.Image) {
 	})
 }
 
-func (a *Atlas) AddSprite(name string, sprite image.Image, data map[string]any) {
+func (a *Atlas) AddSprite(name string, sprite image.Image, nineSlice *NineSlice, data map[string]any) {
 	a.spriteIndex[name] = len(a.sprites)
 	a.sprites = append(a.sprites, Frame{
-		Name:  name,
-		Image: sprite,
-		W:     sprite.Bounds().Size().X,
-		H:     sprite.Bounds().Size().Y,
-		Data:  data,
+		Name:      name,
+		Image:     sprite,
+		W:         sprite.Bounds().Size().X,
+		H:         sprite.Bounds().Size().Y,
+		NineSlice: nineSlice,
+		Data:      data,
+	})
+}
+
+func (a *Atlas) AddSpriteRef(name string, sourceName string, data map[string]any) {
+	a.frameRefs = append(a.frameRefs, FrameRef{
+		Name:        name,
+		SourceFrame: sourceName,
+		Data:        data,
 	})
 }
 
@@ -160,7 +176,26 @@ func (a *Atlas) SaveJSON(filePath string, imagePath string) {
 				W: s.W,
 				H: s.H,
 			},
-			Data: s.Data,
+			Scale9Borders: s.NineSlice,
+			Data:          s.Data,
+		})
+	}
+
+	for _, ref := range a.frameRefs {
+		sourceFrame := a.GetSprite(ref.SourceFrame)
+		if sourceFrame == nil {
+			log.Fatalf("Frame reference %q refers to non-existent sprite %q", ref.Name, ref.SourceFrame)
+		}
+		data.Frames = append(data.Frames, frame{
+			Filename: ref.Name,
+			Frame: rect{
+				X: sourceFrame.X,
+				Y: sourceFrame.Y,
+				W: sourceFrame.W,
+				H: sourceFrame.H,
+			},
+			Scale9Borders: sourceFrame.NineSlice,
+			Data:          ref.Data,
 		})
 	}
 

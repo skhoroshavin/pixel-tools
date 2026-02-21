@@ -79,7 +79,7 @@ type tileRegistry struct {
 
 func newTileRegistry() *tileRegistry {
 	return &tileRegistry{
-		atlas: atlas.New("tileset"),
+		atlas: atlas.New(),
 
 		repackedTiles:   make(map[tileKey]tsx.GlobalTileID),
 		repackedSprites: make(map[tileKey]tsx.GlobalTileID),
@@ -111,7 +111,7 @@ func (r *tileRegistry) addSprite(tile *tsx.Tile) tsx.GlobalTileID {
 	}
 
 	data := convertTileData(tile)
-	r.atlas.AddSprite(fmt.Sprintf("%d", repackedTileID), tile.Data(), data)
+	r.atlas.AddSprite(fmt.Sprintf("%d", repackedTileID), tile.Data(), nil, data)
 	return repackedTileID
 }
 

@@ -18,9 +18,10 @@ type size struct {
 }
 
 type frame struct {
-	Filename string         `json:"filename"`
-	Frame    rect           `json:"frame"`
-	Data     map[string]any `json:"data,omitempty"`
+	Filename      string         `json:"filename"`
+	Frame         rect           `json:"frame"`
+	Scale9Borders *rect          `json:"scale9Borders,omitempty"`
+	Data          map[string]any `json:"data,omitempty"`
 }
 
 type rect struct {

@@ -1,0 +1,18 @@
+- name: hero_
+  image: 20250303demoChar02.png
+  spritesheet:
+    file: character.yaml
+- name: heal
+  image: vfx-heal.png
+  spritesheet:
+    sprite_width: 128
+    sprite_height: 128
+    start_sprite: 1
+    sprite_count: 18
+- name: frame
+  image: gui_9Slices.png
+  nineslice:
+    x: 8
+    y: 8
+    w: 32
+    h: 32

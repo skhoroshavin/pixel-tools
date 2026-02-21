@@ -1,6 +1,60 @@
 # pixel-tools
 This is a set of utilities useful for pixel art
 
+## Atlaspack
+
+A CLI tool for creating packed texture atlases from multiple PNG images. It supports
+individual sprites, 9-slice definitions, and spritesheets, also with named animations.
+
+### Features
+
+- Packs multiple PNG images into a single optimized texture atlas
+- Supports nineslice metadata for UI elements
+- Supports extracting sprites from spritesheets PNGs:
+  - Individual sprites can be extracted just by specifying sprite width and height
+  - Named sprite sequences can be defined with automatic deduplication of frames referenced multiple times
+  - Spritesheet definitions can be imported from external YAML files
+- Generates JSON `.atlas` file compatible with the Phaser game engine
+
+### Usage
+
+```bash
+atlaspack <config.yaml> <output-base>
+```
+
+The tool will process the configuration and output:
+- `<output-base>.png`: The packed texture atlas.
+- `<output-base>.atlas`: A JSON descriptor file containing sprite coordinates and nineslice data.
+
+### Configuration Example
+
+```yaml
+# Name of the sprite in the atlas.
+- name: hero_
+  # Source image path relative to the config file
+  image: character.png
+  # Optional spritesheet definition
+  spritesheet:
+    # Width and height of each sprite in the sheet
+    sprite_width: 48
+    sprite_height: 48
+    # Optional mapping of sprite indices to names or animation sequences
+    sprite_names:
+      idle_front: 0
+      walk_front: [0, 1, 2, 0, 4, 5]
+# Another sprite with 9-slice borders.
+- name: frame
+  image: gui_9Slices.png
+  nineslice:
+    x: 8
+    y: 8
+    w: 32
+    h: 32
+```
+
+For a more detailed example, please see the [example folder](cmd/atlaspack/example), which
+contains a complete configuration with source images and [expected output](cmd/atlaspack/example/expected_output).
+
 ## Fontpack
 
 A CLI tool for creating packed texture atlases and [BMFont](https://www.angelcode.com/products/bmfont/)
@@ -9,10 +63,10 @@ atlas packing, and coordinate mapping.
 
 ### Features
 
-- Trims empty space around glyphs to minimize atlas size.
-- Automatically calculates line height and offsets for consistent baseline alignment.
-- Packs multiple fonts into a single texture atlas.
-- Generates XML-based `.bmfont` files, which can loaded directly by Phaser game engine.
+- Trims empty space around glyphs to minimize atlas size
+- Automatically calculates line height and offsets for consistent baseline alignment
+- Packs multiple fonts into a single texture atlas
+- Generates XML-based `.bmfont` files, which can loaded directly by Phaser game engine
 
 ### Usage
 
@@ -47,7 +101,7 @@ source PNG images (named after the font's `name` property). It outputs:
     - "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
     - "abcdefghijklmnopqrstuvwxyz"
     - "0123456789!\"#$%&'()*+,-./:"
-# Name of another font to include in the atlas.
+# Name of another font to include in the atlas
 - name: another
   size: 16
   line_spacing: 1

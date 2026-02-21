@@ -25,7 +25,7 @@ func main() {
 	fmt.Println("Input config:", fontConfigFile)
 	fmt.Println("Output directory:", outputDir)
 
-	fa := NewFontAtlas("fonts")
+	fa := NewFontAtlas()
 	for _, font := range config.Read(fontConfigFile) {
 		fa.AddFont(font)
 	}
@@ -36,9 +36,9 @@ func main() {
 	fa.SaveBMFonts(outputDir)
 }
 
-func NewFontAtlas(name string) *FontAtlas {
+func NewFontAtlas() *FontAtlas {
 	return &FontAtlas{
-		atlas: atlas.New(name),
+		atlas: atlas.New(),
 		fonts: make([]config.Font, 0),
 	}
 }
@@ -81,7 +81,7 @@ func (fa *FontAtlas) AddFont(font config.Font) {
 
 				actualGlyph := img.SubImage(image.Rect(x*font.Size, y*font.Size+topMargin, (x+1)*font.Size-rightMargin, (y+1)*font.Size-bottomMargin))
 				spriteName := fmt.Sprintf("%s_%d", font.Name, chr)
-				fa.atlas.AddSprite(spriteName, actualGlyph, nil)
+				fa.atlas.AddSprite(spriteName, actualGlyph, nil, nil)
 				bmf.AddChar(chr, 0, 0, w, h, 0, topMargin, w+font.LetterSpacing)
 			}
 			x++

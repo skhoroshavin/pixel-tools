@@ -56,6 +56,7 @@ jobs:
 
           cp -v bin/* dist/${OUTPUT_NAME}/
           mkdir -p dist/${OUTPUT_NAME}/examples
+          cp -rv cmd/atlaspack/example dist/${OUTPUT_NAME}/examples/atlaspack
           cp -rv cmd/fontpack/example dist/${OUTPUT_NAME}/examples/fontpack
           cp -rv cmd/tilepack/example dist/${OUTPUT_NAME}/examples/tilepack
           cp -v cmd/recolor/recolor-config.yaml dist/${OUTPUT_NAME}/
