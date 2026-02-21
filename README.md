@@ -145,9 +145,9 @@ for the full license text.
 
 ### Example art assets
 
-The example project included in this repository uses pixel art assets created
-by Gabriel Lima aka [tiopalada](https://tiopalada.itch.io), with small modifications
-by me. Big thanks to him for creating beautiful pixel art and putting it into the
-public domain. His work is licensed under [CC0 1.0 Universal](https://creativecommons.org/publicdomain/zero/1.0/),
-and [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/), for details
-please see LICENSE files in corresponding example folders.
+Example assets included in this repository were created by Gabriel Lima aka 
+[tiopalada](https://tiopalada.itch.io), with small modifications by me. Big thanks to him for
+creating beautiful pixel art and putting it into the public domain.
+His work is licensed partially under [CC0 1.0 Universal](https://creativecommons.org/publicdomain/zero/1.0/),
+and partially under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/),
+for details please see LICENSE files in corresponding example folders.
