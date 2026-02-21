@@ -33,10 +33,10 @@ jobs:
           GOARCH: amd64
         run: |
           if [ "${GOOS}" = "mac-intel" ]; then
-            GOOS="darwin"
+            export GOOS="darwin"
           elif [ "${GOOS}" = "mac-m1" ]; then
-            GOOS="darwin"
-            GOARCH="arm64"
+            export GOOS="darwin"
+            export GOARCH="arm64"
           fi
 
           make build
@@ -48,19 +48,18 @@ jobs:
           OUTPUT_NAME="pixel-tools-${OS}"
           EXT=""
           if [ "${OS}" = "windows" ]; then
+            find bin -type f -exec mv -- {} {}.exe \;
             EXT=".exe"
           fi
 
           mkdir -p dist/${OUTPUT_NAME}
 
-          cp -v bin/fontpack${EXT} dist/${OUTPUT_NAME}/
-          cp -v bin/recolor${EXT} dist/${OUTPUT_NAME}/
-          cp -v bin/tilepack${EXT} dist/${OUTPUT_NAME}/
+          cp -v bin/* dist/${OUTPUT_NAME}/
+          mkdir -p dist/${OUTPUT_NAME}/examples
+          cp -rv cmd/fontpack/example dist/${OUTPUT_NAME}/examples/fontpack
+          cp -rv cmd/tilepack/example dist/${OUTPUT_NAME}/examples/tilepack
           cp -v cmd/recolor/recolor-config.yaml dist/${OUTPUT_NAME}/
           cp -v cmd/recolor/tf_to_e.lut dist/${OUTPUT_NAME}/
-          if [ "${OS}" = "mac-intel" ] || [ "${OS}" = "mac-m1" ]; then
-            cp -v cmd/recolor/recolor.command dist/${OUTPUT_NAME}/
-          fi
 
           cd dist
           find .

@@ -2,7 +2,7 @@
 
 all: build
 
-build: fontpack recolor repack
+build: fontpack recolor tilepack
 
 test: test-fontpack recolor test-tilepack
 
