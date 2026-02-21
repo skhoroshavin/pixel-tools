@@ -134,8 +134,8 @@ func (a *Atlas) buildTileset() *tsx.Tileset {
 		tileHeight = a.tiles[0].Tile.Tileset.TileHeight
 	}
 
-	size := a.atlas.Size()
-	tileColumns := size / tileWidth
+	width := a.atlas.Width()
+	tileColumns := width / tileWidth
 	tileset := &tsx.Tileset{
 		FirstGID:   1,
 		Name:       a.name,
@@ -145,8 +145,8 @@ func (a *Atlas) buildTileset() *tsx.Tileset {
 		Columns:    tileColumns,
 		Image: &tsx.Image{
 			Source: a.name + ".png",
-			Width:  size,
-			Height: size,
+			Width:  width,
+			Height: a.atlas.Height(),
 		},
 	}
 

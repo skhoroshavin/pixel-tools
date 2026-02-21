@@ -408,7 +408,7 @@
       "columns": 8,
       "image": "road.png",
       "imagewidth": 256,
-      "imageheight": 256,
+      "imageheight": 128,
       "tiles": [
         {
           "id": 0

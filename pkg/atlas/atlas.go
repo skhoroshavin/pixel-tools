@@ -15,7 +15,8 @@ func New(name string) *Atlas {
 
 	return &Atlas{
 		name:        name,
-		size:        initialSize,
+		width:       initialSize,
+		height:      initialSize,
 		spriteIndex: make(map[string]int),
 		skyline:     make([]int, initialSize),
 	}
@@ -29,7 +30,8 @@ type Atlas struct {
 
 	spriteIndex map[string]int
 
-	size    int
+	width   int
+	height  int
 	skyline []int
 }
 
@@ -41,7 +43,9 @@ type Frame struct {
 	Data  map[string]any
 }
 
-func (a *Atlas) Size() int { return a.size }
+func (a *Atlas) Width() int { return a.width }
+
+func (a *Atlas) Height() int { return a.height }
 
 func (a *Atlas) GetSprite(name string) *Frame {
 	idx, ok := a.spriteIndex[name]
@@ -95,7 +99,7 @@ func (a *Atlas) Pack() {
 	}
 
 	// Repack until the size becomes stable
-	lastSize := a.size
+	lastWidth := a.width
 	for {
 		a.setSkyline(0)
 		for i := range a.tiles {
@@ -107,16 +111,15 @@ func (a *Atlas) Pack() {
 			a.packSprite(&a.sprites[i])
 		}
 
-		if lastSize != a.size {
-			lastSize = a.size
-		} else {
+		if lastWidth == a.width {
 			return
 		}
+		lastWidth = a.width
 	}
 }
 
 func (a *Atlas) SaveImage(filePath string) {
-	img := image.NewRGBA(image.Rect(0, 0, a.size, a.size))
+	img := image.NewRGBA(image.Rect(0, 0, a.width, a.height))
 
 	for _, tile := range a.tiles {
 		a.drawFrame(img, &tile)
@@ -135,8 +138,8 @@ func (a *Atlas) SaveJSON(filePath string, imagePath string) {
 			Image:  imagePath,
 			Format: "RGBA8888",
 			Size: size{
-				W: a.size,
-				H: a.size,
+				W: a.width,
+				H: a.height,
 			},
 			Scale: "1",
 		},
@@ -166,7 +169,7 @@ func (a *Atlas) SaveJSON(filePath string, imagePath string) {
 }
 
 func (a *Atlas) setSkyline(level int) {
-	a.skyline = make([]int, a.size)
+	a.skyline = make([]int, a.width)
 	for i := range a.skyline {
 		a.skyline[i] = level
 	}
@@ -197,15 +200,19 @@ func (a *Atlas) findBestPosition(f *Frame) int {
 		return bestX
 	}
 	// Otherwise double the atlas size and try again
-	a.skyline = append(a.skyline, make([]int, a.size)...)
-	a.size *= 2
+	if a.width == a.height {
+		a.skyline = append(a.skyline, make([]int, a.width)...)
+		a.width *= 2
+	} else {
+		a.height *= 2
+	}
 	return a.findBestPosition(f)
 }
 
 func (a *Atlas) isFitting(x int, w int, h int) bool {
 	y := a.skyline[x]
 	// Return false if we don't fit to frame
-	if (x+w > a.size) || (y+h > a.size) {
+	if (x+w > a.width) || (y+h > a.height) {
 		return false
 	}
 	// Check whether we overlap with the next skyline points
