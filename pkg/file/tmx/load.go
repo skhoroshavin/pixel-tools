@@ -8,8 +8,8 @@ import (
 	"pixel-tools/pkg/file/tsx"
 )
 
-func Load(path string) *Map {
-	bytes, err := os.ReadFile(path)
+func Load(filePath string) *Map {
+	bytes, err := os.ReadFile(filePath)
 	if err != nil {
 		log.Fatalf("Failed to open file: %v", err)
 	}
@@ -28,9 +28,9 @@ func Load(path string) *Map {
 
 	for i, tileset := range res.Tilesets {
 		if tileset.Source == "" {
-			tileset.PostLoad(filepath.Dir(path))
+			tileset.PostLoad(filepath.Dir(filePath))
 		} else {
-			external := tsx.Load(filepath.Join(filepath.Dir(path), tileset.Source))
+			external := tsx.Load(filepath.Join(filepath.Dir(filePath), tileset.Source))
 			external.FirstGID = tileset.FirstGID
 			res.Tilesets[i] = external
 		}

@@ -1,8 +1,6 @@
 package tsx
 
 import (
-	"image"
-	"image/draw"
 	"log"
 )
 
@@ -22,51 +20,13 @@ func (ts *Tileset) HasSameTileSize(other *Tileset) bool {
 	return ts.TileWidth == other.TileWidth && ts.TileHeight == other.TileHeight
 }
 
-type Tile struct {
-	ID          LocalTileID `xml:"id,attr"`
-	Type        string      `xml:"type,attr"`
-	Animation   []Frame     `xml:"animation>frame"`
-	Properties  []Property  `xml:"properties>property"`
-	ObjectGroup ObjectGroup `xml:"objectgroup"`
-
-	Image  *Image `xml:"image"`
-	X      int    `xml:"x,attr"`
-	Y      int    `xml:"y,attr"`
-	Width  int    `xml:"width,attr"`
-	Height int    `xml:"height,attr"`
-
-	Tileset *Tileset `xml:"-"`
-}
-
-type Frame struct {
-	TileID   LocalTileID `xml:"tileid,attr"`
-	Duration int         `xml:"duration,attr"` // milliseconds
-}
-
-type GlobalTileID uint32
-type LocalTileID uint32
-
-func (t GlobalTileID) WithoutFlags() GlobalTileID {
-	return t & 0x0fffffff
-}
-
-func (t GlobalTileID) Flags() uint32 {
-	return uint32(t) >> 28
-}
-
-func (t GlobalTileID) WithFlags(flags uint32) GlobalTileID {
-	return GlobalTileID(uint32(t) | (flags << 28))
-}
-
 func (ts *Tileset) PostLoad(basePath string) {
 	if ts.Image != nil {
 		ts.Image.PostLoad(basePath)
 	}
+
 	for _, tile := range ts.Tiles {
-		tile.Tileset = ts
-		if tile.Image != nil {
-			tile.Image.PostLoad(basePath)
-		}
+		tile.PostLoad(basePath, ts)
 	}
 }
 
@@ -103,19 +63,4 @@ func (ts *Tileset) Tile(id GlobalTileID) *Tile {
 	}
 	ts.Tiles = append(ts.Tiles, tile)
 	return tile
-}
-
-func (t *Tile) CopyImageFrom(srcTile *Tile) {
-	tileWidth := t.Tileset.TileWidth
-	tileHeight := t.Tileset.TileHeight
-	srcColumns := srcTile.Tileset.Columns
-	dstColumns := t.Tileset.Columns
-
-	srcX := (int(srcTile.ID) % srcColumns) * tileWidth
-	srcY := (int(srcTile.ID) / srcColumns) * tileHeight
-	dstX := (int(t.ID) % dstColumns) * tileWidth
-	dstY := (int(t.ID) / dstColumns) * tileHeight
-
-	draw.Draw(t.Tileset.Image.Data, image.Rect(dstX, dstY, dstX+tileWidth, dstY+tileHeight),
-		srcTile.Tileset.Image.Data, image.Pt(srcX, srcY), draw.Src)
 }

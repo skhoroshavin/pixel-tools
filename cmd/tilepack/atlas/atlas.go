@@ -53,14 +53,7 @@ func (a *Atlas) UseTile(tileID tsx.GlobalTileID) tsx.GlobalTileID {
 	repackedTileID := tsx.GlobalTileID(len(a.repackedTiles) + 1)
 	a.repackedTiles[tileID] = repackedTileID
 
-	w := tile.Tileset.TileWidth
-	h := tile.Tileset.TileHeight
-	srcX := (int(tile.ID) % tile.Tileset.Columns) * w
-	srcY := (int(tile.ID) / tile.Tileset.Columns) * h
-
-	subImg := tile.Tileset.Image.Data.SubImage(image.Rect(srcX, srcY, srcX+w, srcY+h))
-
-	a.atlas.AddTile(subImg)
+	a.atlas.AddTile(tile.Data())
 	a.tiles = append(a.tiles, &Sprite{
 		Tile: tile,
 	})

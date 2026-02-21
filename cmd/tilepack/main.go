@@ -12,27 +12,6 @@ import (
 	"strings"
 )
 
-func repack(m *tmx.Map, a *atlas.Atlas) {
-	for _, layer := range m.Layers {
-		switch {
-		case layer.IsTileLayer():
-			for i, tileID := range layer.Data.Decoded {
-				if tileID != 0 {
-					layer.Data.Decoded[i] = a.UseTile(tileID.WithoutFlags()).WithFlags(tileID.Flags())
-				}
-			}
-		case layer.IsObjectGroup():
-			for i, obj := range layer.Objects {
-				if obj.GID != 0 {
-					layer.Objects[i].GID = a.UseSprite(obj.GID.WithoutFlags()).WithFlags(obj.GID.Flags())
-				}
-			}
-		}
-	}
-
-	m.Tilesets = []*tsx.Tileset{a.Pack()}
-}
-
 func main() {
 	if len(os.Args) != 3 {
 		println("Usage: tilepack <input-dir> <output-dir>")
@@ -81,4 +60,25 @@ func main() {
 	if err != nil {
 		log.Fatalf("Failed to walk input directory: %v", err)
 	}
+}
+
+func repack(m *tmx.Map, a *atlas.Atlas) {
+	for _, layer := range m.Layers {
+		switch {
+		case layer.IsTileLayer():
+			for i, tileID := range layer.Data.Decoded {
+				if tileID != 0 {
+					layer.Data.Decoded[i] = a.UseTile(tileID.WithoutFlags()).WithFlags(tileID.Flags())
+				}
+			}
+		case layer.IsObjectGroup():
+			for i, obj := range layer.Objects {
+				if obj.GID != 0 {
+					layer.Objects[i].GID = a.UseSprite(obj.GID.WithoutFlags()).WithFlags(obj.GID.Flags())
+				}
+			}
+		}
+	}
+
+	m.Tilesets = []*tsx.Tileset{a.Pack()}
 }
