@@ -4,8 +4,7 @@ import (
 	"encoding/json"
 	"log"
 	"os"
-
-	"pixel-tools/cmd/tilepack/tmx"
+	"pixel-tools/pkg/file/tmx"
 )
 
 type Map struct {

@@ -1,8 +1,6 @@
 package tmx
 
-import (
-	"pixel-tools/cmd/tilepack/tsx"
-)
+import "pixel-tools/pkg/file/tsx"
 
 type Map struct {
 	Version     string         `xml:"version,attr"`

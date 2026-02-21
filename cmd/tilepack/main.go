@@ -5,12 +5,11 @@ import (
 	"log"
 	"os"
 	"path/filepath"
-	"strings"
-
 	"pixel-tools/cmd/tilepack/atlas"
-	"pixel-tools/cmd/tilepack/tmj"
-	"pixel-tools/cmd/tilepack/tmx"
-	"pixel-tools/cmd/tilepack/tsx"
+	"pixel-tools/pkg/file/tmj"
+	"pixel-tools/pkg/file/tmx"
+	"pixel-tools/pkg/file/tsx"
+	"strings"
 )
 
 func repack(m *tmx.Map, a *atlas.Atlas) {

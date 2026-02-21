@@ -5,11 +5,10 @@ import (
 	"image"
 	"log"
 	"path"
-	"pixel-tools/cmd/tilepack/tmj"
+	"pixel-tools/pkg/file/tmj"
+	"pixel-tools/pkg/file/tsx"
 
 	atlaspkg "pixel-tools/pkg/atlas"
-
-	"pixel-tools/cmd/tilepack/tsx"
 )
 
 func New(name string, tilesets []*tsx.Tileset) *Atlas {
@@ -112,7 +111,7 @@ func (a *Atlas) Pack() *tsx.Tileset {
 }
 
 func (a *Atlas) Save(baseName string) {
-	a.atlas.SaveImage(baseName+".png")
+	a.atlas.SaveImage(baseName + ".png")
 	a.atlas.SaveJSON(baseName+".atlas", path.Base(baseName)+".png")
 }
 

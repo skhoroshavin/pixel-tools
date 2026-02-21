@@ -1,8 +1,6 @@
 package tmj
 
-import (
-	"pixel-tools/cmd/tilepack/tsx"
-)
+import "pixel-tools/pkg/file/tsx"
 
 type Tile struct {
 	ID          tsx.LocalTileID `json:"id"`

@@ -3,10 +3,9 @@ package tmx
 import (
 	"encoding/xml"
 	"log"
+	"pixel-tools/pkg/file/tsx"
 	"strconv"
 	"strings"
-
-	"pixel-tools/cmd/tilepack/tsx"
 )
 
 type Layer struct {

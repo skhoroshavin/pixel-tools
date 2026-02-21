@@ -2,10 +2,9 @@ package tmj
 
 import (
 	"log"
+	"pixel-tools/pkg/file/tsx"
 	"strconv"
 	"strings"
-
-	"pixel-tools/cmd/tilepack/tsx"
 )
 
 type Object struct {

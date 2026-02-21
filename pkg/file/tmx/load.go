@@ -5,8 +5,7 @@ import (
 	"log"
 	"os"
 	"path/filepath"
-
-	"pixel-tools/cmd/tilepack/tsx"
+	"pixel-tools/pkg/file/tsx"
 )
 
 func Load(path string) *Map {

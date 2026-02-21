@@ -1,6 +1,6 @@
 package tmj
 
-import "pixel-tools/cmd/tilepack/tsx"
+import "pixel-tools/pkg/file/tsx"
 
 type Property struct {
 	Name  string `json:"name"`
