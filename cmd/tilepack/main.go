@@ -5,10 +5,8 @@ import (
 	"log"
 	"os"
 	"path/filepath"
-	"pixel-tools/cmd/tilepack/atlas"
-	"pixel-tools/pkg/file/tmj"
+	"pixel-tools/cmd/tilepack/builder"
 	"pixel-tools/pkg/file/tmx"
-	"pixel-tools/pkg/file/tsx"
 	"strings"
 )
 
@@ -23,62 +21,29 @@ func main() {
 
 	fmt.Println("Input directory:", inputDir)
 	fmt.Println("Output directory:", outputDir)
+	if err := os.MkdirAll(outputDir, 0755); err != nil {
+		log.Fatalf("Failed to create output directory: %v", err)
+	}
 
-	err := filepath.Walk(inputDir, func(path string, info os.FileInfo, err error) error {
-		if err != nil {
-			return err
-		}
-		if info.IsDir() || !strings.HasSuffix(path, ".tmx") {
-			return nil
-		}
-
-		inputTmx := path
-		fullName := strings.TrimSuffix(strings.TrimPrefix(inputTmx, inputDir), ".tmx")
-		shortName := filepath.Base(fullName)
-
-		outputTmj := filepath.Join(outputDir, fullName+".tmj")
-		outputAtlas := strings.TrimSuffix(outputTmj, ".tmj")
-		tmjDir := filepath.Dir(outputTmj)
-
-		fmt.Println("Processing", strings.TrimPrefix(inputTmx, inputDir))
-
-		err = os.MkdirAll(tmjDir, 0775)
-		if err != nil {
-			log.Fatalf("Failed to create output directory: %v", err)
-		}
-
-		src := tmx.Load(inputTmx)
-		a := atlas.New(shortName, src.Tilesets)
-		repack(src, a)
-		dst := tmj.ConvertFromTMX(src)
-
-		a.Save(outputAtlas)
-		dst.Save(outputTmj)
-
-		return nil
-	})
+	entries, err := os.ReadDir(inputDir)
 	if err != nil {
-		log.Fatalf("Failed to walk input directory: %v", err)
+		log.Fatalf("Failed to read input directory: %v", err)
 	}
-}
 
-func repack(m *tmx.Map, a *atlas.Atlas) {
-	for _, layer := range m.Layers {
-		switch {
-		case layer.IsTileLayer():
-			for i, tileID := range layer.Data.Decoded {
-				if tileID != 0 {
-					layer.Data.Decoded[i] = a.UseTile(tileID.WithoutFlags()).WithFlags(tileID.Flags())
-				}
-			}
-		case layer.IsObjectGroup():
-			for i, obj := range layer.Objects {
-				if obj.GID != 0 {
-					layer.Objects[i].GID = a.UseSprite(obj.GID.WithoutFlags()).WithFlags(obj.GID.Flags())
-				}
-			}
+	b := builder.New()
+	for _, entry := range entries {
+		if entry.IsDir() || !strings.HasSuffix(entry.Name(), ".tmx") {
+			continue
 		}
+
+		inputTmx := filepath.Join(inputDir, entry.Name())
+		baseName := strings.TrimSuffix(entry.Name(), ".tmx")
+
+		fmt.Println("Processing", entry.Name())
+		src := tmx.Load(inputTmx)
+		b.AddTilemap(baseName, src)
 	}
 
-	m.Tilesets = []*tsx.Tileset{a.Pack()}
+	fmt.Println("Saving to", outputDir)
+	b.Save(outputDir)
 }

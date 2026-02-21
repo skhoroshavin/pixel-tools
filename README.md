@@ -68,49 +68,42 @@ actually used in the maps.
 ### Features
 
 - Analyzes TMX map files to identify used tiles
-- Creates optimized tilesets by removing unused tiles
+- Creates an optimized tileset by removing unused tiles
+- Packs all tiles into a single texture atlas
 - Preserves tile properties and object layers
 - Supports PNG image format for tilesets
 - Handles both embedded and external tilesets
-- Packs differently-sized object layer tiles into separate atlas
-- Outputs JSON tilemaps and sprite atlases that integrate seamlessly with phaser.io engine
+- Outputs JSON tilemaps and a sprite atlas that integrates seamlessly with Phaser engine
 
 ### Usage
 
 ```bash
-tilepack <source-folder> <destination-folder>
+tilepack <source-dir> <destination-dir>
 ```
 
 This command will:
-1. Recursively scan all `.tmx` files in the source folder
+1. Scan all `.tmx` files in the source directory and all associated tilesets
 2. Generate optimized output in the destination folder:
-    - JSON tilemaps and atlas mappings (compatible with Phaser.io engine)
-    - Compressed PNG files with only used tiles and sprites
+    - JSON tilemaps (compatible with Phaser engine)
+    - `tileset.png` and `tileset.atlas` containing all used tiles and sprites
 
 Example input and output structures:
 ```
 source/
-├── episode1/
-│ ├── level1.tmx
-│ └── level2.tmx
-├── episode2/
-│ └── level1.tmx
-└── tilesets/
-  ├── terrain.png
-  └── trees.png
+├── level1.tmx
+└── level2.tmx
+
+somewhere-referred-from-tmx-files/
+├── terrain.tsx
+├── terrain.png
+├── trees.tsx
+└── trees.png
 
 destination/
-├── episode1/
-│ ├── level1.tmj
-│ ├── level1.png
-│ ├── level1.atlas
-│ ├── level2.tmj
-│ ├── level2.png
-│ └── level2.atlas
-└── episode2/
-  ├── level1.tmj
-  ├── level1.png
-  └── level1.atlas
+├── level1.tmj
+├── level2.tmj
+├── tileset.png
+└── tileset.atlas
 ```
 
 ## Recolor

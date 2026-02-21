@@ -445,13 +445,13 @@
   "tilesets": [
     {
       "firstgid": 1,
-      "name": "cave",
+      "name": "tileset",
       "tilewidth": 32,
       "tileheight": 32,
-      "tilecount": 26,
-      "columns": 8,
-      "image": "cave.png",
-      "imagewidth": 256,
+      "tilecount": 57,
+      "columns": 16,
+      "image": "tileset.png",
+      "imagewidth": 512,
       "imageheight": 256,
       "tiles": [
         {

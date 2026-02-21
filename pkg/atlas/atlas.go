@@ -6,6 +6,7 @@ import (
 	"image/draw"
 	"log"
 	"os"
+	"path"
 	"pixel-tools/pkg/file/png"
 	"sort"
 )
@@ -116,6 +117,11 @@ func (a *Atlas) Pack() {
 		}
 		lastWidth = a.width
 	}
+}
+
+func (a *Atlas) Save(baseName string) {
+	a.SaveImage(baseName + ".png")
+	a.SaveJSON(baseName+".atlas", path.Base(baseName)+".png")
 }
 
 func (a *Atlas) SaveImage(filePath string) {

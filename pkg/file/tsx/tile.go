@@ -37,7 +37,7 @@ func (t *Tile) Data() image.Image {
 			srcY := (int(t.ID) / t.Tileset.Columns) * h
 			t.data = t.Tileset.Image.Data.SubImage(image.Rect(srcX, srcY, srcX+w, srcY+h))
 		} else {
-			t.data = t.Image.Data
+			t.data = t.Image.Data.SubImage(image.Rect(t.X, t.Y, t.X+t.Width, t.Y+t.Height))
 		}
 	}
 	return t.data

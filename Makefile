@@ -31,6 +31,6 @@ test-fontpack: fontpack
 
 test-tilepack: tilepack
 	@mkdir -p cmd/tilepack/example/output
-	cd cmd/tilepack/example && ../../../bin/tilepack areas output
+	cd cmd/tilepack/example && ../../../bin/tilepack tilemaps output
 	@diff -r cmd/tilepack/example/output cmd/tilepack/example/expected_output || (echo "FAIL: tilepack output differs from expected" && exit 1)
 	echo "SUCCESS: tilepack output is identical to expected"

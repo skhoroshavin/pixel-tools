@@ -1,4 +1,4 @@
-# Font Pack Example
+# Fontpack Example
 
 This is a set of example assets to test the font pack tool, containing
 single `fonts.yaml` configuration for a tool, and three example `png`
