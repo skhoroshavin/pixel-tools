@@ -1,4 +1,4 @@
-name: Release
+name: Github and Itch.io Release
 
 on:
   push:
@@ -6,8 +6,8 @@ on:
       - 'v*'
 
 jobs:
-  binaries-publish:
-    name: Build and publish binaries
+  publish:
+    name: Build and publish to Github and Itch.io
     runs-on: ubuntu-latest
 
     strategy:
@@ -65,14 +65,14 @@ jobs:
           zip -r ${OUTPUT_NAME}.zip ${OUTPUT_NAME}/
           cd ..
 
-      - name: Release to Github
+      - name: Publish to Github
         uses: softprops/action-gh-release@v1
         with:
           files: dist/pixel-tools-${{ matrix.os }}.zip
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Release to itch.io
+      - name: Publish to Itch.io
         uses: XanatosX/butler-publish-itchio-action@fb0a6f13954b75e8fbcfb703dbdb8626452efaba
         env:
           BUTLER_CREDENTIALS: ${{ secrets.BUTLER_API_KEY }}
@@ -81,28 +81,3 @@ jobs:
           ITCH_USER: skhoroshavin
           PACKAGE: dist/pixel-tools-${{ matrix.os }}.zip
           VERSION: ${{ github.ref_name }}
-
-
-  npm_publish:
-    name: Publish to npm
-    runs-on: ubuntu-latest
-
-    permissions:
-      contents: read
-      id-token: write
-
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '20'
-          registry-url: 'https://registry.npmjs.org'
-
-      - name: Build
-        run: npm ci && npm run build
-
-      - name: Publish
-        run: npm publish --access public --provenance
