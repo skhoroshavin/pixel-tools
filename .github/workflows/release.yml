@@ -46,19 +46,13 @@ jobs:
           OS: ${{ matrix.os }}
         run: |
           OUTPUT_NAME="pixel-tools-${OS}"
-          EXT=""
           if [ "${OS}" = "windows" ]; then
             find bin -type f -exec mv -- {} {}.exe \;
-            EXT=".exe"
           fi
 
           mkdir -p dist/${OUTPUT_NAME}
 
           cp -v bin/* dist/${OUTPUT_NAME}/
-          mkdir -p dist/${OUTPUT_NAME}/examples
-          cp -rv cmd/atlaspack/example dist/${OUTPUT_NAME}/examples/atlaspack
-          cp -rv cmd/fontpack/example dist/${OUTPUT_NAME}/examples/fontpack
-          cp -rv cmd/tilepack/example dist/${OUTPUT_NAME}/examples/tilepack
           cp -v cmd/recolor/recolor-config.yaml dist/${OUTPUT_NAME}/
           cp -v cmd/recolor/tf_to_e.lut dist/${OUTPUT_NAME}/
 
@@ -82,4 +76,39 @@ jobs:
           ITCH_GAME: pixel-tools
           ITCH_USER: skhoroshavin
           PACKAGE: dist/pixel-tools-${{ matrix.os }}.zip
+          VERSION: ${{ github.ref_name }}
+
+  release-examples:
+    name: Package and Release Examples
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Package examples
+        run: |
+          mkdir -p dist/pixel-tools-examples
+          cp -rv cmd/atlaspack/example dist/pixel-tools-examples/atlaspack
+          cp -rv cmd/fontpack/example dist/pixel-tools-examples/fontpack
+          cp -rv cmd/tilepack/example dist/pixel-tools-examples/tilepack
+          
+          cd dist
+          zip -r pixel-tools-examples.zip pixel-tools-examples/
+          cd ..
+
+      - name: Release to Github
+        uses: softprops/action-gh-release@v1
+        with:
+          files: dist/pixel-tools-examples.zip
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Release to itch.io
+        uses: XanatosX/butler-publish-itchio-action@fb0a6f13954b75e8fbcfb703dbdb8626452efaba
+        env:
+          BUTLER_CREDENTIALS: ${{ secrets.BUTLER_API_KEY }}
+          CHANNEL: examples
+          ITCH_GAME: pixel-tools
+          ITCH_USER: skhoroshavin
+          PACKAGE: dist/pixel-tools-examples.zip
           VERSION: ${{ github.ref_name }}

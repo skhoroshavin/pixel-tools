@@ -4,7 +4,7 @@ This is a set of utilities useful for pixel art
 ## Atlaspack
 
 A CLI tool for creating packed texture atlases from multiple PNG images. It supports
-individual sprites, 9-slice definitions, and spritesheets, also with named animations.
+individual sprites, nineslice definitions, and spritesheets, also with named animations.
 
 ### Features
 
