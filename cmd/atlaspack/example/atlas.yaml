@@ -11,8 +11,4 @@
     sprite_count: 18
 - name: frame
   image: gui_9Slices.png
-  nineslice:
-    x: 8
-    y: 8
-    w: 32
-    h: 32
+  nineslice: { x: 8, y: 8, w: 32, h: 32}
