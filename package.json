@@ -23,6 +23,8 @@
     "url": "https://github.com/skhoroshavin/pixel-tools/issues"
   },
   "keywords": [
+    "texture-packer",
+    "texture-atlas",
     "pixel-art",
     "phaser",
     "game-dev",
