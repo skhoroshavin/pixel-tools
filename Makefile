@@ -1,4 +1,4 @@
-.PHONY: all build test clean fontpack recolor tilepack atlaspack test-fontpack test-tilepack
+.PHONY: all build test clean atlaspack fontpack tilepack recolor test-atlaspack test-fontpack test-tilepack
 
 all: build
 
@@ -16,19 +16,19 @@ clean:
 
 atlaspack:
 	@mkdir -p bin
-	go build -o bin/atlaspack ./cmd/atlaspack
+	go build -ldflags="-s -w" -o bin/atlaspack ./cmd/atlaspack
 
 fontpack:
 	@mkdir -p bin
-	go build -o bin/fontpack ./cmd/fontpack
+	go build -ldflags="-s -w" -o bin/fontpack ./cmd/fontpack
 
 tilepack:
 	@mkdir -p bin
-	go build -o bin/tilepack ./cmd/tilepack
+	go build -ldflags="-s -w" -o bin/tilepack ./cmd/tilepack
 
 recolor:
 	@mkdir -p bin
-	go build -o bin/recolor ./cmd/recolor
+	go build -ldflags="-s -w" -o bin/recolor ./cmd/recolor
 
 test-atlaspack: atlaspack
 	@mkdir -p cmd/atlaspack/example/output

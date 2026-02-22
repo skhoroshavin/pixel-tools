@@ -46,10 +46,8 @@ jobs:
           OS: ${{ matrix.os }}
         run: |
           OUTPUT_NAME="pixel-tools-${OS}"
-          EXT=""
           if [ "${OS}" = "windows" ]; then
             find bin -type f -exec mv -- {} {}.exe \;
-            EXT=".exe"
           fi
 
           mkdir -p dist/${OUTPUT_NAME}
