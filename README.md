@@ -1,10 +1,48 @@
 # pixel-tools
-This is a set of utilities useful for pixel art
+
+A set of CLI tools useful for building pixel art asset pipelines for
+games, especially developed using Phaser.
+
+## Installation
+
+### Manually from release archive
+
+1.  Download the latest release archive for your platform (Windows, Linux, or macOS) 
+    from [itch.io](https://skhoroshavin.itch.io/pixel-tools) or the
+    [GitHub](https://github.com/skhoroshavin/pixel-tools/releases) releases page.
+2.  Extract the archive to a folder of your choice.
+3.  Add the folder containing the binaries to your system's `PATH` to use them from any directory.
+
+### Using npm
+
+This package is also available on npm, making it easy to use in Web game development workflows.
+
+```bash
+npm install --save-dev pixel-tools
+```
+
+You can then use the tools directly via `npx`:
+
+```bash
+npx atlaspack atlas.yaml output/game
+npx fontpack fonts.yaml output/
+npx tilepack tilemaps/ output/
+```
+
+Or put into a `package.json` scripts section, to create an actual asset pipeline:
+
+```json
+{
+  "scripts": {
+    "build:assets": "atlaspack assets/atlas.yaml src/assets/game && fontpack assets/fonts.yaml src/assets/fonts"
+  }
+}
+```
 
 ## Atlaspack
 
 A CLI tool for creating packed texture atlases from multiple PNG images. It supports
-individual sprites, 9-slice definitions, and spritesheets, also with named animations.
+individual sprites, nineslice definitions, and spritesheets, also with named animations.
 
 ### Features
 
@@ -183,12 +221,11 @@ for details on all available options.
 ### Code
 
 All tools are free to download and use for any purpose, including commercial
-projects. Full source code is available on GitHub under GPL3 license, which
+projects. Full source code is available on GitHub under MPL 2.0 license, which
 means you're also free to modify and redistribute these tools - the main
 restriction is that if (and only if) you're redistributing modified versions,
 you must also provide source code of your modifications to your customers.
-See the file [LICENSE](https://github.com/skhoroshavin/phaser-pixui/blob/main/LICENSE)
-for the full license text.
+See the file [LICENSE](LICENSE) for the full license text.
 
 ### Example art assets
 

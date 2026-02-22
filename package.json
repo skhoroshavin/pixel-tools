@@ -1,0 +1,38 @@
+{
+  "name": "pixel-tools",
+  "version": "0.8.4",
+  "description": "A set of CLI tools useful for building pixel art asset pipelines for games, especially developed using Phaser",
+  "bin": {
+    "atlaspack": "scripts/wrapper.js",
+    "fontpack": "scripts/wrapper.js",
+    "tilepack": "scripts/wrapper.js"
+  },
+  "files": [
+    "bin/",
+    "scripts/wrapper.js"
+  ],
+  "scripts": {
+    "build": "node scripts/build.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/skhoroshavin/pixel-tools.git"
+  },
+  "homepage": "https://skhoroshavin.itch.io/pixel-tools",
+  "bugs": {
+    "url": "https://github.com/skhoroshavin/pixel-tools/issues"
+  },
+  "keywords": [
+    "pixel-art",
+    "phaser",
+    "game-dev",
+    "atlas",
+    "bmfont",
+    "tiled"
+  ],
+  "author": "Sergei Khoroshavin",
+  "license": "MPL-2.0",
+  "engines": {
+    "node": ">=14"
+  }
+}

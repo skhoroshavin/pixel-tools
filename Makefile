@@ -16,19 +16,19 @@ clean:
 
 atlaspack:
 	@mkdir -p bin
-	go build -ldflags="-s -w" -o bin/atlaspack ./cmd/atlaspack
+	go build -ldflags="-s -w" -o bin/atlaspack$(BINARY_SUFFIX) ./cmd/atlaspack
 
 fontpack:
 	@mkdir -p bin
-	go build -ldflags="-s -w" -o bin/fontpack ./cmd/fontpack
+	go build -ldflags="-s -w" -o bin/fontpack$(BINARY_SUFFIX) ./cmd/fontpack
 
 tilepack:
 	@mkdir -p bin
-	go build -ldflags="-s -w" -o bin/tilepack ./cmd/tilepack
+	go build -ldflags="-s -w" -o bin/tilepack$(BINARY_SUFFIX) ./cmd/tilepack
 
 recolor:
 	@mkdir -p bin
-	go build -ldflags="-s -w" -o bin/recolor ./cmd/recolor
+	go build -ldflags="-s -w" -o bin/recolor$(BINARY_SUFFIX) ./cmd/recolor
 
 test-atlaspack: atlaspack
 	@mkdir -p cmd/atlaspack/example/output

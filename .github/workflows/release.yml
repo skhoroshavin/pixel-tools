@@ -29,14 +29,17 @@ jobs:
 
       - name: Build pixel tools
         env:
+          OS: ${{ matrix.os }}
           GOOS: ${{ matrix.os }}
           GOARCH: amd64
         run: |
-          if [ "${GOOS}" = "mac-intel" ]; then
+          if [ "${OS}" = "mac-intel" ]; then
             export GOOS="darwin"
-          elif [ "${GOOS}" = "mac-m1" ]; then
+          elif [ "${OS}" = "mac-m1" ]; then
             export GOOS="darwin"
             export GOARCH="arm64"
+          elif [ "${OS}" = "windows" ]; then
+            export BINARY_SUFFIX=".exe"
           fi
 
           make build
@@ -46,9 +49,6 @@ jobs:
           OS: ${{ matrix.os }}
         run: |
           OUTPUT_NAME="pixel-tools-${OS}"
-          if [ "${OS}" = "windows" ]; then
-            find bin -type f -exec mv -- {} {}.exe \;
-          fi
 
           mkdir -p dist/${OUTPUT_NAME}
 
