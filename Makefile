@@ -4,6 +4,9 @@ all: build
 
 build: atlaspack fontpack tilepack recolor
 
+install: build
+	cp -fv bin/* /usr/local/bin
+
 test: test-atlaspack test-fontpack test-tilepack recolor
 
 clean:
