@@ -31,19 +31,16 @@ recolor:
 	go build -ldflags="-s -w" -o bin/recolor$(BINARY_SUFFIX) ./cmd/recolor
 
 test-atlaspack: atlaspack
-	@mkdir -p cmd/atlaspack/example/output
 	bin/atlaspack cmd/atlaspack/example/atlas.yaml cmd/atlaspack/example/output/game
 	@diff -r cmd/atlaspack/example/output cmd/atlaspack/example/expected_output || (echo "FAIL: fontpack output differs from expected" && exit 1)
 	echo "SUCCESS: atlaspack output is identical to expected"
 
 test-fontpack: fontpack
-	@mkdir -p cmd/fontpack/example/output
 	bin/fontpack cmd/fontpack/example/fonts.yaml cmd/fontpack/example/output
 	@diff -r cmd/fontpack/example/output cmd/fontpack/example/expected_output || (echo "FAIL: fontpack output differs from expected" && exit 1)
 	echo "SUCCESS: fontpack output is identical to expected"
 
 test-tilepack: tilepack
-	@mkdir -p cmd/tilepack/example/output
 	bin/tilepack cmd/tilepack/example/tilemaps cmd/tilepack/example/output
 	@diff -r cmd/tilepack/example/output cmd/tilepack/example/expected_output || (echo "FAIL: tilepack output differs from expected" && exit 1)
 	echo "SUCCESS: tilepack output is identical to expected"

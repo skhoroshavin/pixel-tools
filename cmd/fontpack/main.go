@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"image"
+	"log"
 	"os"
 	"path"
 	"path/filepath"
@@ -24,6 +25,9 @@ func main() {
 
 	fmt.Println("Input config:", fontConfigFile)
 	fmt.Println("Output directory:", outputDir)
+	if err := os.MkdirAll(outputDir, 0755); err != nil {
+		log.Fatalf("Failed to create output directory: %v", err)
+	}
 
 	fa := NewFontAtlas()
 	for _, font := range config.Read(fontConfigFile) {
