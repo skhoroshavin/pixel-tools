@@ -108,8 +108,8 @@ func (a *Atlas) AddSprite(name string, sprite image.Image, nineSlice *NineSlice,
 		trimmedNineSlice = &NineSlice{
 			X: nineSlice.X + left,
 			Y: nineSlice.Y + top,
-			W: nineSlice.W - left - right,
-			H: nineSlice.H - top - bottom,
+			W: nineSlice.W - 2*left - right,
+			H: nineSlice.H - 2*top - bottom,
 		}
 	}
 
