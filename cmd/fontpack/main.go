@@ -49,89 +49,74 @@ func NewFontAtlas() *FontAtlas {
 type FontAtlas struct {
 	atlas *atlas.Atlas
 
-	fonts   []config.Font
-	bmfonts []*bmfont.BMFont
+	fonts      []config.Font
+	bmfonts    []*bmfont.BMFont
+	minYOffset []int
 }
 
 func (fa *FontAtlas) AddFont(font config.Font) {
-	fa.fonts = append(fa.fonts, font)
-	bmf := bmfont.New(font.Name, font.Size, "")
-	fa.bmfonts = append(fa.bmfonts, bmf)
-	bmf.AddChar(32, 0, 0, 0, 0, 0, 0, font.SpaceWidth+font.LetterSpacing)
-
 	img := png.Read(filepath.Join(filepath.Dir(os.Args[1]), font.Name+".png"))
-	minTop := font.Size
+
+	minYOffset := font.Size
 	maxBottom := 0
 
 	for y, str := range font.Letters {
 		x := 0
 		for _, chr := range str {
-			spriteName := fmt.Sprintf("%s_%d", font.Name, chr)
+			glyphName := fmt.Sprintf("%s_%d", font.Name, chr)
 			glyphImg := img.SubImage(image.Rect(x*font.Size, y*font.Size, (x+1)*font.Size, (y+1)*font.Size))
-			frame := fa.atlas.AddSprite(spriteName, glyphImg, nil, nil)
-
-			if !frame.Trimmed {
-				bmf.AddChar(chr, 0, 0, font.Size, font.Size, 0, 0, font.Size+font.LetterSpacing)
-				continue
-			}
-
-			leftMargin := frame.SpriteSourceSize.X
-			topMargin := frame.SpriteSourceSize.Y
-			bottomMargin := frame.SourceSize.H - frame.Frame.H - topMargin
-
-			w := frame.Frame.W
-			h := frame.Frame.H
-
-			if w > 0 && h > 0 {
-				if topMargin < minTop {
-					minTop = topMargin
-				}
-				if font.Size-bottomMargin > maxBottom {
-					maxBottom = font.Size - bottomMargin
-				}
-
-				bmf.AddChar(chr, 0, 0, w, h, leftMargin, topMargin, leftMargin+w+font.LetterSpacing)
+			glyph := fa.atlas.AddSprite(glyphName, glyphImg, nil, nil)
+			if glyph.Trimmed {
+				minYOffset = min(minYOffset, glyph.SpriteSourceSize.Y)
+				maxBottom = max(maxBottom, glyph.Frame.H+glyph.SpriteSourceSize.Y)
 			}
 			x++
 		}
 	}
 
-	for i := range bmf.Chars.Char {
-		if bmf.Chars.Char[i].ID != 32 {
-			bmf.Chars.Char[i].YOffset -= minTop
-			bmf.Chars.Char[i].YOffset += font.TopOffset
-		} else {
-			bmf.Chars.Char[i].YOffset = -minTop + font.TopOffset
-		}
-	}
-	bmf.Common.LineHeight = maxBottom - minTop + font.LineSpacing
+	bmf := bmfont.New(font.Name, font.Size, "")
+	bmf.Common.LineHeight = maxBottom - minYOffset + font.LineSpacing
+	bmf.AddChar(32, atlas.Rect{}, 0, 0, font.SpaceWidth+font.LetterSpacing)
+
+	fa.fonts = append(fa.fonts, font)
+	fa.bmfonts = append(fa.bmfonts, bmf)
+	fa.minYOffset = append(fa.minYOffset, minYOffset)
 }
 
 func (fa *FontAtlas) Build() {
 	fa.atlas.Pack()
 
-	for _, bmf := range fa.bmfonts {
-		bmf.Common.Base = 0
-		for i := range bmf.Chars.Char {
-			char := &bmf.Chars.Char[i]
-			if char.ID == 32 {
-				continue
-			}
-			spriteName := fmt.Sprintf("%s_%d", bmf.Info.Face, char.ID)
-			sprite := fa.atlas.GetSprite(spriteName)
-			if sprite != nil {
-				char.X = sprite.Frame.X
-				char.Y = sprite.Frame.Y
+	for i, font := range fa.fonts {
+		bmf := fa.bmfonts[i]
+		minYOffset := fa.minYOffset[i]
+
+		for _, str := range font.Letters {
+			for _, chr := range str {
+				glyphName := fmt.Sprintf("%s_%d", font.Name, chr)
+				glyph := fa.atlas.GetSprite(glyphName)
+				if glyph == nil {
+					continue
+				}
+
+				if !glyph.Trimmed {
+					bmf.AddChar(chr, glyph.Frame, 0, 0,
+						font.Size+font.LetterSpacing)
+					continue
+				}
+
+				bmf.AddChar(chr, glyph.Frame,
+					glyph.SpriteSourceSize.X,
+					glyph.SpriteSourceSize.Y-minYOffset,
+					glyph.SpriteSourceSize.X+glyph.Frame.W+font.LetterSpacing)
 			}
 		}
-		bmf.Chars.Count = len(bmf.Chars.Char)
 	}
 }
 
 func (fa *FontAtlas) SaveImage(filePath string) {
 	fa.atlas.SaveImage(filePath)
-	for i := range fa.bmfonts {
-		fa.bmfonts[i].Pages.Page[0].File = path.Base(filePath)
+	for _, bmf := range fa.bmfonts {
+		bmf.Pages.Page[0].File = path.Base(filePath)
 	}
 }
 

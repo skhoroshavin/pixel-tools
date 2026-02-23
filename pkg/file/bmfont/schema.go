@@ -4,6 +4,7 @@ import (
 	"encoding/xml"
 	"log"
 	"os"
+	"pixel-tools/pkg/atlas"
 	"strings"
 )
 
@@ -36,14 +37,15 @@ type BMFont struct {
 	Chars  Chars  `xml:"chars"`
 }
 
-func (f *BMFont) AddChar(code int32, x, y, width, height, xOffset, yOffset, xAdvance int) {
+func (f *BMFont) AddChar(code int32, frame atlas.Rect, xOffset, yOffset, xAdvance int) {
+	f.Chars.Count++
 	f.Chars.Char = append(f.Chars.Char, Char{
 		ID:       int(code),
 		Letter:   string(code),
-		X:        x,
-		Y:        y,
-		Width:    width,
-		Height:   height,
+		X:        frame.X,
+		Y:        frame.Y,
+		Width:    frame.W,
+		Height:   frame.H,
 		XOffset:  xOffset,
 		YOffset:  yOffset,
 		XAdvance: xAdvance,

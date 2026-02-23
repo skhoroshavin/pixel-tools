@@ -25,7 +25,6 @@ func Read(filePath string) []Font {
 type Font struct {
 	Name          string   `yaml:"name"`
 	Size          int      `yaml:"size"`
-	TopOffset     int      `yaml:"top_offset"`
 	LineSpacing   int      `yaml:"line_spacing"`
 	LetterSpacing int      `yaml:"letter_spacing"`
 	SpaceWidth    int      `yaml:"space_width"`

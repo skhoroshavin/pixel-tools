@@ -40,7 +40,7 @@ type Frame struct {
 	Image image.Image
 }
 
-type NineSlice = rect
+type NineSlice = Rect
 
 type FrameRef struct {
 	Name        string
@@ -62,11 +62,11 @@ func (a *Atlas) GetSprite(name string) *Frame {
 
 func (a *Atlas) AddTile(tile image.Image) {
 	if len(a.tiles) > 0 && !tile.Bounds().Size().Eq(a.tiles[0].Image.Bounds().Size()) {
-		log.Fatalf("All tiles must have the same size")
+		log.Fatalf("All tiles must have the same Size")
 	}
 	a.tiles = append(a.tiles, Frame{
 		frame: frame{
-			Frame: rect{
+			Frame: Rect{
 				W: tile.Bounds().Size().X,
 				H: tile.Bounds().Size().Y,
 			},
@@ -97,18 +97,18 @@ func (a *Atlas) AddSprite(name string, sprite image.Image, nineSlice *NineSlice,
 	res := Frame{
 		frame: frame{
 			Name: name,
-			Frame: rect{
+			Frame: Rect{
 				W: trimmedW,
 				H: trimmedH,
 			},
 			Trimmed: true,
-			SpriteSourceSize: &rect{
+			SpriteSourceSize: &Rect{
 				X: left,
 				Y: top,
 				W: trimmedW,
 				H: trimmedH,
 			},
-			SourceSize: &size{
+			SourceSize: &Size{
 				W: originalW,
 				H: originalH,
 			},
@@ -193,7 +193,7 @@ func (a *Atlas) SaveJSON(filePath string, imagePath string) {
 		Meta: meta{
 			Image:  imagePath,
 			Format: "RGBA8888",
-			Size: size{
+			Size: Size{
 				W: a.width,
 				H: a.height,
 			},
@@ -230,7 +230,7 @@ func (a *Atlas) addUntrimmed(name string, sprite image.Image, nineSlice *NineSli
 	res := Frame{
 		frame: frame{
 			Name: name,
-			Frame: rect{
+			Frame: Rect{
 				W: sprite.Bounds().Dx(),
 				H: sprite.Bounds().Dy(),
 			},

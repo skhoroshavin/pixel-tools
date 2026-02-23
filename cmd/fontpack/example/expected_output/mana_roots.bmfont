@@ -6,7 +6,7 @@
     <page id="0" file="fonts.png"/>
   </pages>
   <chars count="163">
-    <char id="32" letter=" " x="0" y="0" width="0" height="0" xoffset="0" yoffset="-3" xadvance="5"/>
+    <char id="32" letter=" " x="0" y="0" width="0" height="0" xoffset="0" yoffset="0" xadvance="5"/>
     <char id="65" letter="A" x="39" y="40" width="8" height="9" xoffset="0" yoffset="3" xadvance="9"/>
     <char id="66" letter="B" x="162" y="57" width="8" height="8" xoffset="0" yoffset="3" xadvance="9"/>
     <char id="67" letter="C" x="68" y="57" width="8" height="8" xoffset="0" yoffset="3" xadvance="9"/>
