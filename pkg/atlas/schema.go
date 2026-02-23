@@ -12,16 +12,21 @@ type meta struct {
 	Scale  string `json:"scale"`
 }
 
+type frame struct {
+	Name          string `json:"filename"`
+	Frame         rect   `json:"frame"`
+	Scale9Borders *rect  `json:"scale9Borders,omitempty"`
+
+	Trimmed          bool  `json:"trimmed,omitempty"`
+	SpriteSourceSize *rect `json:"spriteSourceSize,omitempty"`
+	SourceSize       *size `json:"sourceSize,omitempty"`
+
+	Data map[string]any `json:"data,omitempty"`
+}
+
 type size struct {
 	W int `json:"w"`
 	H int `json:"h"`
-}
-
-type frame struct {
-	Filename      string         `json:"filename"`
-	Frame         rect           `json:"frame"`
-	Scale9Borders *rect          `json:"scale9Borders,omitempty"`
-	Data          map[string]any `json:"data,omitempty"`
 }
 
 type rect struct {

@@ -8,6 +8,7 @@ import (
 	"os"
 	"path"
 	"pixel-tools/pkg/file/png"
+	"pixel-tools/pkg/imgutil"
 	"sort"
 )
 
@@ -32,15 +33,13 @@ type Atlas struct {
 	width   int
 	height  int
 	skyline []int
+
+	disableTrim bool
 }
 
 type Frame struct {
-	Name      string
-	Image     image.Image
-	X, Y      int
-	W, H      int
-	NineSlice *NineSlice
-	Data      map[string]any
+	frame
+	Image image.Image
 }
 
 type NineSlice = rect
@@ -55,6 +54,11 @@ func (a *Atlas) Width() int { return a.width }
 
 func (a *Atlas) Height() int { return a.height }
 
+func (a *Atlas) DisableAutoTrim() *Atlas {
+	a.disableTrim = true
+	return a
+}
+
 func (a *Atlas) GetSprite(name string) *Frame {
 	idx, ok := a.spriteIndex[name]
 	if !ok {
@@ -68,21 +72,59 @@ func (a *Atlas) AddTile(tile image.Image) {
 		log.Fatalf("All tiles must have the same size")
 	}
 	a.tiles = append(a.tiles, Frame{
+		frame: frame{
+			Frame: rect{
+				W: tile.Bounds().Size().X,
+				H: tile.Bounds().Size().Y,
+			},
+		},
 		Image: tile,
-		W:     tile.Bounds().Size().X,
-		H:     tile.Bounds().Size().Y,
 	})
 }
 
 func (a *Atlas) AddSprite(name string, sprite image.Image, nineSlice *NineSlice, data map[string]any) {
 	a.spriteIndex[name] = len(a.sprites)
+	if a.disableTrim {
+		a.addUntrimmed(name, sprite, nineSlice, data)
+		return
+	}
+
+	left := imgutil.GetLeftMargin(sprite)
+	right := imgutil.GetRightMargin(sprite)
+	top := imgutil.GetTopMargin(sprite)
+	bottom := imgutil.GetBottomMargin(sprite)
+	if left == 0 && right == 0 && top == 0 && bottom == 0 {
+		a.addUntrimmed(name, sprite, nineSlice, data)
+		return
+	}
+
+	originalW := sprite.Bounds().Dx()
+	originalH := sprite.Bounds().Dy()
+	trimmedW := originalW - left - right
+	trimmedH := originalH - top - bottom
+
 	a.sprites = append(a.sprites, Frame{
-		Name:      name,
-		Image:     sprite,
-		W:         sprite.Bounds().Size().X,
-		H:         sprite.Bounds().Size().Y,
-		NineSlice: nineSlice,
-		Data:      data,
+		frame: frame{
+			Name: name,
+			Frame: rect{
+				W: trimmedW,
+				H: trimmedH,
+			},
+			Trimmed: true,
+			SpriteSourceSize: &rect{
+				X: left,
+				Y: top,
+				W: trimmedW,
+				H: trimmedH,
+			},
+			SourceSize: &size{
+				W: originalW,
+				H: originalH,
+			},
+			Scale9Borders: nineSlice,
+			Data:          data,
+		},
+		Image: sprite,
 	})
 }
 
@@ -97,10 +139,10 @@ func (a *Atlas) AddSpriteRef(name string, sourceName string, data map[string]any
 func (a *Atlas) Pack() {
 	// Sort sprites by size
 	sort.Slice(a.sprites, func(i, j int) bool {
-		iw := a.sprites[i].W
-		ih := a.sprites[i].H
-		jw := a.sprites[j].W
-		jh := a.sprites[j].H
+		iw := a.sprites[i].Frame.W
+		ih := a.sprites[i].Frame.H
+		jw := a.sprites[j].Frame.W
+		jh := a.sprites[j].Frame.H
 		if iw*ih > jw*jh {
 			return true
 		}
@@ -168,17 +210,7 @@ func (a *Atlas) SaveJSON(filePath string, imagePath string) {
 	}
 
 	for _, s := range a.sprites {
-		data.Frames = append(data.Frames, frame{
-			Filename: s.Name,
-			Frame: rect{
-				X: s.X,
-				Y: s.Y,
-				W: s.W,
-				H: s.H,
-			},
-			Scale9Borders: s.NineSlice,
-			Data:          s.Data,
-		})
+		data.Frames = append(data.Frames, s.frame)
 	}
 
 	for _, ref := range a.frameRefs {
@@ -186,17 +218,10 @@ func (a *Atlas) SaveJSON(filePath string, imagePath string) {
 		if sourceFrame == nil {
 			log.Fatalf("Frame reference %q refers to non-existent sprite %q", ref.Name, ref.SourceFrame)
 		}
-		data.Frames = append(data.Frames, frame{
-			Filename: ref.Name,
-			Frame: rect{
-				X: sourceFrame.X,
-				Y: sourceFrame.Y,
-				W: sourceFrame.W,
-				H: sourceFrame.H,
-			},
-			Scale9Borders: sourceFrame.NineSlice,
-			Data:          ref.Data,
-		})
+		refFrame := sourceFrame.frame
+		refFrame.Name = ref.Name
+		refFrame.Data = ref.Data
+		data.Frames = append(data.Frames, refFrame)
 	}
 
 	atlasJSON, err := json.MarshalIndent(data, "", "  ")
@@ -209,6 +234,21 @@ func (a *Atlas) SaveJSON(filePath string, imagePath string) {
 	}
 }
 
+func (a *Atlas) addUntrimmed(name string, sprite image.Image, nineSlice *NineSlice, data map[string]any) {
+	a.sprites = append(a.sprites, Frame{
+		frame: frame{
+			Name: name,
+			Frame: rect{
+				W: sprite.Bounds().Dx(),
+				H: sprite.Bounds().Dy(),
+			},
+			Scale9Borders: nineSlice,
+			Data:          data,
+		},
+		Image: sprite,
+	})
+}
+
 func (a *Atlas) setSkyline(level int) {
 	a.skyline = make([]int, a.width)
 	for i := range a.skyline {
@@ -218,16 +258,16 @@ func (a *Atlas) setSkyline(level int) {
 
 func (a *Atlas) packSprite(f *Frame) {
 	x := a.findBestPosition(f)
-	f.X = x
-	f.Y = a.skyline[x]
-	a.insertFrame(x, f.W, f.H)
+	f.Frame.X = x
+	f.Frame.Y = a.skyline[x]
+	a.insertFrame(x, f.Frame.W, f.Frame.H)
 }
 
 func (a *Atlas) findBestPosition(f *Frame) int {
 	bestX := -1
 	for x, y := range a.skyline {
 		// If we don't fit into the frame, then skip
-		if !a.isFitting(x, f.W, f.H) {
+		if !a.isFitting(x, f.Frame.W, f.Frame.H) {
 			continue
 		}
 		// If we already have a candidate best point - compare with it and discard if we are not better
@@ -278,6 +318,15 @@ func (a *Atlas) insertFrame(x int, w int, h int) {
 }
 
 func (a *Atlas) drawFrame(dstImage *image.RGBA, f *Frame) {
-	draw.Draw(dstImage, image.Rect(f.X, f.Y, f.X+f.W, f.Y+f.H),
-		f.Image, f.Image.Bounds().Min, draw.Src)
+	if f.Frame.W == 0 || f.Frame.H == 0 {
+		return
+	}
+
+	sourcePoint := f.Image.Bounds().Min
+	if f.SpriteSourceSize != nil {
+		sourcePoint.X += f.SpriteSourceSize.X
+		sourcePoint.Y += f.SpriteSourceSize.Y
+	}
+	draw.Draw(dstImage, image.Rect(f.Frame.X, f.Frame.Y, f.Frame.X+f.Frame.W, f.Frame.Y+f.Frame.H),
+		f.Image, sourcePoint, draw.Src)
 }

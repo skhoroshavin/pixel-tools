@@ -42,7 +42,7 @@ func main() {
 
 func NewFontAtlas() *FontAtlas {
 	return &FontAtlas{
-		atlas: atlas.New(),
+		atlas: atlas.New().DisableAutoTrim(),
 		fonts: make([]config.Font, 0),
 	}
 }
@@ -116,8 +116,8 @@ func (fa *FontAtlas) Build() {
 			spriteName := fmt.Sprintf("%s_%d", bmf.Info.Face, char.ID)
 			sprite := fa.atlas.GetSprite(spriteName)
 			if sprite != nil {
-				char.X = sprite.X
-				char.Y = sprite.Y
+				char.X = sprite.Frame.X
+				char.Y = sprite.Frame.Y
 			}
 		}
 		bmf.Chars.Count = len(bmf.Chars.Char)
