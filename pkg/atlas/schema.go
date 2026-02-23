@@ -8,7 +8,7 @@ type rootJson struct {
 type meta struct {
 	Image  string `json:"image"`
 	Format string `json:"format"`
-	Size   Size   `json:"Size"`
+	Size   Size   `json:"size"`
 	Scale  string `json:"scale"`
 }
 

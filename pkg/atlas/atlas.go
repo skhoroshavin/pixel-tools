@@ -62,7 +62,7 @@ func (a *Atlas) GetSprite(name string) *Frame {
 
 func (a *Atlas) AddTile(tile image.Image) {
 	if len(a.tiles) > 0 && !tile.Bounds().Size().Eq(a.tiles[0].Image.Bounds().Size()) {
-		log.Fatalf("All tiles must have the same Size")
+		log.Fatalf("All tiles must have the same size")
 	}
 	a.tiles = append(a.tiles, Frame{
 		frame: frame{
