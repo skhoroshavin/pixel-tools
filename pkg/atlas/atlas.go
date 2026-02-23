@@ -84,7 +84,7 @@ func (a *Atlas) AddTile(tile image.Image) {
 
 func (a *Atlas) AddSprite(name string, sprite image.Image, nineSlice *NineSlice, data map[string]any) {
 	a.spriteIndex[name] = len(a.sprites)
-	if a.disableTrim {
+	if a.disableTrim || nineSlice != nil {
 		a.addUntrimmed(name, sprite, nineSlice, data)
 		return
 	}
@@ -102,16 +102,6 @@ func (a *Atlas) AddSprite(name string, sprite image.Image, nineSlice *NineSlice,
 	originalH := sprite.Bounds().Dy()
 	trimmedW := originalW - left - right
 	trimmedH := originalH - top - bottom
-
-	var trimmedNineSlice *rect
-	if nineSlice != nil {
-		trimmedNineSlice = &NineSlice{
-			X: max(0, nineSlice.X-left),
-			Y: max(0, nineSlice.Y-top),
-			W: min(trimmedW, nineSlice.W),
-			H: min(trimmedH, nineSlice.H),
-		}
-	}
 
 	a.sprites = append(a.sprites, Frame{
 		frame: frame{
@@ -131,8 +121,7 @@ func (a *Atlas) AddSprite(name string, sprite image.Image, nineSlice *NineSlice,
 				W: originalW,
 				H: originalH,
 			},
-			Scale9Borders: trimmedNineSlice,
-			Data:          data,
+			Data: data,
 		},
 		Image: sprite,
 	})
