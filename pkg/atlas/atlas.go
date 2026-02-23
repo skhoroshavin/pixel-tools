@@ -33,8 +33,6 @@ type Atlas struct {
 	width   int
 	height  int
 	skyline []int
-
-	disableTrim bool
 }
 
 type Frame struct {
@@ -53,11 +51,6 @@ type FrameRef struct {
 func (a *Atlas) Width() int { return a.width }
 
 func (a *Atlas) Height() int { return a.height }
-
-func (a *Atlas) DisableAutoTrim() *Atlas {
-	a.disableTrim = true
-	return a
-}
 
 func (a *Atlas) GetSprite(name string) *Frame {
 	idx, ok := a.spriteIndex[name]
@@ -82,11 +75,10 @@ func (a *Atlas) AddTile(tile image.Image) {
 	})
 }
 
-func (a *Atlas) AddSprite(name string, sprite image.Image, nineSlice *NineSlice, data map[string]any) {
+func (a *Atlas) AddSprite(name string, sprite image.Image, nineSlice *NineSlice, data map[string]any) *Frame {
 	a.spriteIndex[name] = len(a.sprites)
-	if a.disableTrim || nineSlice != nil {
-		a.addUntrimmed(name, sprite, nineSlice, data)
-		return
+	if nineSlice != nil {
+		return a.addUntrimmed(name, sprite, nineSlice, data)
 	}
 
 	left := imgutil.GetLeftMargin(sprite)
@@ -94,8 +86,7 @@ func (a *Atlas) AddSprite(name string, sprite image.Image, nineSlice *NineSlice,
 	top := imgutil.GetTopMargin(sprite)
 	bottom := imgutil.GetBottomMargin(sprite)
 	if left == 0 && right == 0 && top == 0 && bottom == 0 {
-		a.addUntrimmed(name, sprite, nineSlice, data)
-		return
+		return a.addUntrimmed(name, sprite, nineSlice, data)
 	}
 
 	originalW := sprite.Bounds().Dx()
@@ -103,7 +94,7 @@ func (a *Atlas) AddSprite(name string, sprite image.Image, nineSlice *NineSlice,
 	trimmedW := originalW - left - right
 	trimmedH := originalH - top - bottom
 
-	a.sprites = append(a.sprites, Frame{
+	res := Frame{
 		frame: frame{
 			Name: name,
 			Frame: rect{
@@ -124,7 +115,9 @@ func (a *Atlas) AddSprite(name string, sprite image.Image, nineSlice *NineSlice,
 			Data: data,
 		},
 		Image: sprite,
-	})
+	}
+	a.sprites = append(a.sprites, res)
+	return &res
 }
 
 func (a *Atlas) AddSpriteRef(name string, sourceName string, data map[string]any) {
@@ -233,8 +226,8 @@ func (a *Atlas) SaveJSON(filePath string, imagePath string) {
 	}
 }
 
-func (a *Atlas) addUntrimmed(name string, sprite image.Image, nineSlice *NineSlice, data map[string]any) {
-	a.sprites = append(a.sprites, Frame{
+func (a *Atlas) addUntrimmed(name string, sprite image.Image, nineSlice *NineSlice, data map[string]any) *Frame {
+	res := Frame{
 		frame: frame{
 			Name: name,
 			Frame: rect{
@@ -245,7 +238,9 @@ func (a *Atlas) addUntrimmed(name string, sprite image.Image, nineSlice *NineSli
 			Data:          data,
 		},
 		Image: sprite,
-	})
+	}
+	a.sprites = append(a.sprites, res)
+	return &res
 }
 
 func (a *Atlas) setSkyline(level int) {

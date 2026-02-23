@@ -11,7 +11,6 @@ import (
 	"pixel-tools/pkg/atlas"
 	"pixel-tools/pkg/file/bmfont"
 	"pixel-tools/pkg/file/png"
-	"pixel-tools/pkg/imgutil"
 )
 
 func main() {
@@ -42,7 +41,7 @@ func main() {
 
 func NewFontAtlas() *FontAtlas {
 	return &FontAtlas{
-		atlas: atlas.New().DisableAutoTrim(),
+		atlas: atlas.New(),
 		fonts: make([]config.Font, 0),
 	}
 }
@@ -67,13 +66,21 @@ func (fa *FontAtlas) AddFont(font config.Font) {
 	for y, str := range font.Letters {
 		x := 0
 		for _, chr := range str {
+			spriteName := fmt.Sprintf("%s_%d", font.Name, chr)
 			glyphImg := img.SubImage(image.Rect(x*font.Size, y*font.Size, (x+1)*font.Size, (y+1)*font.Size))
-			rightMargin := imgutil.GetRightMargin(glyphImg)
-			topMargin := imgutil.GetTopMargin(glyphImg)
-			bottomMargin := imgutil.GetBottomMargin(glyphImg)
+			frame := fa.atlas.AddSprite(spriteName, glyphImg, nil, nil)
 
-			w := font.Size - rightMargin
-			h := font.Size - bottomMargin - topMargin
+			if !frame.Trimmed {
+				bmf.AddChar(chr, 0, 0, font.Size, font.Size, 0, 0, font.Size+font.LetterSpacing)
+				continue
+			}
+
+			leftMargin := frame.SpriteSourceSize.X
+			topMargin := frame.SpriteSourceSize.Y
+			bottomMargin := frame.SourceSize.H - frame.Frame.H - topMargin
+
+			w := frame.Frame.W
+			h := frame.Frame.H
 
 			if w > 0 && h > 0 {
 				if topMargin < minTop {
@@ -83,10 +90,7 @@ func (fa *FontAtlas) AddFont(font config.Font) {
 					maxBottom = font.Size - bottomMargin
 				}
 
-				actualGlyph := img.SubImage(image.Rect(x*font.Size, y*font.Size+topMargin, (x+1)*font.Size-rightMargin, (y+1)*font.Size-bottomMargin))
-				spriteName := fmt.Sprintf("%s_%d", font.Name, chr)
-				fa.atlas.AddSprite(spriteName, actualGlyph, nil, nil)
-				bmf.AddChar(chr, 0, 0, w, h, 0, topMargin, w+font.LetterSpacing)
+				bmf.AddChar(chr, 0, 0, w, h, leftMargin, topMargin, leftMargin+w+font.LetterSpacing)
 			}
 			x++
 		}
