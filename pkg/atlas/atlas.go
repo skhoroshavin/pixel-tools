@@ -103,6 +103,16 @@ func (a *Atlas) AddSprite(name string, sprite image.Image, nineSlice *NineSlice,
 	trimmedW := originalW - left - right
 	trimmedH := originalH - top - bottom
 
+	var trimmedNineSlice *rect
+	if nineSlice != nil {
+		trimmedNineSlice = &NineSlice{
+			X: nineSlice.X + left,
+			Y: nineSlice.Y + top,
+			W: nineSlice.W - left - right,
+			H: nineSlice.H - top - bottom,
+		}
+	}
+
 	a.sprites = append(a.sprites, Frame{
 		frame: frame{
 			Name: name,
@@ -121,7 +131,7 @@ func (a *Atlas) AddSprite(name string, sprite image.Image, nineSlice *NineSlice,
 				W: originalW,
 				H: originalH,
 			},
-			Scale9Borders: nineSlice,
+			Scale9Borders: trimmedNineSlice,
 			Data:          data,
 		},
 		Image: sprite,

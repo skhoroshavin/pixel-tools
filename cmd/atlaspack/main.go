@@ -3,8 +3,10 @@ package main
 import (
 	"fmt"
 	"image"
+	"log"
 	"maps"
 	"os"
+	"path"
 	"path/filepath"
 	"pixel-tools/cmd/atlaspack/config"
 	"pixel-tools/pkg/atlas"
@@ -22,6 +24,9 @@ func main() {
 
 	fmt.Println("Input config:", configFile)
 	fmt.Println("Output base:", outputBase)
+	if err := os.MkdirAll(path.Dir(outputBase), 0755); err != nil {
+		log.Fatalf("Failed to create output directory: %v", err)
+	}
 
 	b := NewBuilder(filepath.Dir(configFile))
 
