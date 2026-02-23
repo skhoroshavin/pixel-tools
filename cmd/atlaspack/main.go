@@ -150,6 +150,7 @@ func (ss *Spritesheet) build(cfg *config.Spritesheet) {
 func (ss *Spritesheet) buildNamed(names map[string]any) {
 	for _, name := range slices.Sorted(maps.Keys(names)) {
 		val := names[name]
+		name = "_" + name
 		switch v := val.(type) {
 		case int:
 			ss.addSprite(name, v)
