@@ -39,6 +39,13 @@ Or put into a `package.json` scripts section, to create an actual asset pipeline
 }
 ```
 
+For more complex example, you can also check example project in
+[phaser-pixui](https://github.com/skhoroshavin/phaser-pixui/blob/main/example),
+which has setup an asset pipeline [script](https://github.com/skhoroshavin/phaser-pixui/blob/main/example/vite/asset-pipeline.mjs),
+automatically repacking and optimizing assets on each build, both for
+[development with hot-reload](https://github.com/skhoroshavin/phaser-pixui/blob/main/example/vite/config.dev.mjs)
+and for [production builds](https://github.com/skhoroshavin/phaser-pixui/blob/main/example/vite/config.prod.mjs).
+
 ## Atlaspack
 
 A CLI tool for creating packed texture atlases from multiple PNG images. It supports
@@ -47,6 +54,7 @@ individual sprites, nineslice definitions, and spritesheets, also with named ani
 ### Features
 
 - Packs multiple PNG images into a single optimized texture atlas
+- Trims empty space around sprites to minimize atlas size
 - Supports nineslice metadata for UI elements
 - Supports extracting sprites from spritesheets PNGs:
   - Individual sprites can be extracted just by specifying sprite width and height
