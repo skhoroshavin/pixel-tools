@@ -1,0 +1,11 @@
+sprite_width: 48
+sprite_height: 48
+sprite_names:
+  idle_front: 0
+  idle_left: 6
+  idle_back: 12
+  idle_right: 18
+  walk_front: [0, 1, 2, 0, 4, 5]
+  walk_left: [6, 7, 8, 6, 10, 11]
+  walk_back: [12, 13, 14, 12, 16, 17]
+  walk_right: [18, 19, 20, 18, 22, 23]

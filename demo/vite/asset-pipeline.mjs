@@ -4,7 +4,7 @@ import { fileURLToPath } from 'url';
 import fs from 'fs';
 
 function assetPipeline() {
-    // TODO: Put your commands for packing assets here
+    atlaspack('sprites.yaml', 'sprites')
 }
 
 function fontpack(src, dst) { run('fontpack', src, dst) }

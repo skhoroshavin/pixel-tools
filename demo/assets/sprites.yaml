@@ -1,0 +1,4 @@
+- name: hero
+  image: 20250303demoChar02.png
+  spritesheet:
+    file: character.yaml
