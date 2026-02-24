@@ -12,10 +12,15 @@ import (
 	"sort"
 )
 
-func New() *Atlas {
+type Config struct {
+	Padding int
+}
+
+func New(cfg Config) *Atlas {
 	const initialSize = 16
 
 	return &Atlas{
+		config:      cfg,
 		width:       initialSize,
 		height:      initialSize,
 		spriteIndex: make(map[string]int),
@@ -24,6 +29,7 @@ func New() *Atlas {
 }
 
 type Atlas struct {
+	config    Config
 	tiles     []Frame
 	sprites   []Frame
 	frameRefs []FrameRef
@@ -75,28 +81,35 @@ func (a *Atlas) AddTile(tile image.Image) {
 	})
 }
 
-func (a *Atlas) AddSprite(name string, sprite image.Image, nineSlice *NineSlice, data map[string]any) *Frame {
-	a.spriteIndex[name] = len(a.sprites)
-	if nineSlice != nil {
-		return a.addUntrimmed(name, sprite, nineSlice, data)
+type SpriteConfig struct {
+	Name      string
+	Image     image.Image
+	NineSlice *NineSlice
+	Data      map[string]any
+}
+
+func (a *Atlas) AddSprite(cfg SpriteConfig) *Frame {
+	a.spriteIndex[cfg.Name] = len(a.sprites)
+	if cfg.NineSlice != nil {
+		return a.addUntrimmed(cfg)
 	}
 
-	left := imgutil.GetLeftMargin(sprite)
-	right := imgutil.GetRightMargin(sprite)
-	top := imgutil.GetTopMargin(sprite)
-	bottom := imgutil.GetBottomMargin(sprite)
+	left := imgutil.GetLeftMargin(cfg.Image)
+	right := imgutil.GetRightMargin(cfg.Image)
+	top := imgutil.GetTopMargin(cfg.Image)
+	bottom := imgutil.GetBottomMargin(cfg.Image)
 	if left == 0 && right == 0 && top == 0 && bottom == 0 {
-		return a.addUntrimmed(name, sprite, nineSlice, data)
+		return a.addUntrimmed(cfg)
 	}
 
-	originalW := sprite.Bounds().Dx()
-	originalH := sprite.Bounds().Dy()
+	originalW := cfg.Image.Bounds().Dx()
+	originalH := cfg.Image.Bounds().Dy()
 	trimmedW := originalW - left - right
 	trimmedH := originalH - top - bottom
 
 	res := Frame{
 		frame: frame{
-			Name: name,
+			Name: cfg.Name,
 			Frame: Rect{
 				W: trimmedW,
 				H: trimmedH,
@@ -112,9 +125,9 @@ func (a *Atlas) AddSprite(name string, sprite image.Image, nineSlice *NineSlice,
 				W: originalW,
 				H: originalH,
 			},
-			Data: data,
+			Data: cfg.Data,
 		},
-		Image: sprite,
+		Image: cfg.Image,
 	}
 	a.sprites = append(a.sprites, res)
 	return &res
@@ -151,15 +164,16 @@ func (a *Atlas) Pack() {
 
 	// Repack until the size becomes stable
 	lastWidth := a.width
+	p := a.config.Padding
 	for {
 		a.setSkyline(0)
 		for i := range a.tiles {
-			a.packSprite(&a.tiles[i])
+			a.packSprite(0, &a.tiles[i])
 		}
 
 		a.setSkyline(a.skyline[0])
 		for i := range a.sprites {
-			a.packSprite(&a.sprites[i])
+			a.packSprite(p, &a.sprites[i])
 		}
 
 		if lastWidth == a.width {
@@ -226,18 +240,18 @@ func (a *Atlas) SaveJSON(filePath string, imagePath string) {
 	}
 }
 
-func (a *Atlas) addUntrimmed(name string, sprite image.Image, nineSlice *NineSlice, data map[string]any) *Frame {
+func (a *Atlas) addUntrimmed(cfg SpriteConfig) *Frame {
 	res := Frame{
 		frame: frame{
-			Name: name,
+			Name: cfg.Name,
 			Frame: Rect{
-				W: sprite.Bounds().Dx(),
-				H: sprite.Bounds().Dy(),
+				W: cfg.Image.Bounds().Dx(),
+				H: cfg.Image.Bounds().Dy(),
 			},
-			Scale9Borders: nineSlice,
-			Data:          data,
+			Scale9Borders: cfg.NineSlice,
+			Data:          cfg.Data,
 		},
-		Image: sprite,
+		Image: cfg.Image,
 	}
 	a.sprites = append(a.sprites, res)
 	return &res
@@ -250,18 +264,18 @@ func (a *Atlas) setSkyline(level int) {
 	}
 }
 
-func (a *Atlas) packSprite(f *Frame) {
-	x := a.findBestPosition(f)
-	f.Frame.X = x
-	f.Frame.Y = a.skyline[x]
-	a.insertFrame(x, f.Frame.W, f.Frame.H)
+func (a *Atlas) packSprite(p int, f *Frame) {
+	x := a.findBestPosition(p, f)
+	f.Frame.X = x + p
+	f.Frame.Y = a.skyline[x] + p
+	a.insertFrame(x, f.Frame.W+p, f.Frame.H+p)
 }
 
-func (a *Atlas) findBestPosition(f *Frame) int {
+func (a *Atlas) findBestPosition(p int, f *Frame) int {
 	bestX := -1
 	for x, y := range a.skyline {
 		// If we don't fit into the frame, then skip
-		if !a.isFitting(x, f.Frame.W, f.Frame.H) {
+		if !a.isFitting(x, f.Frame.W+p, f.Frame.H+p) {
 			continue
 		}
 		// If we already have a candidate best point - compare with it and discard if we are not better
@@ -281,7 +295,7 @@ func (a *Atlas) findBestPosition(f *Frame) int {
 	} else {
 		a.height *= 2
 	}
-	return a.findBestPosition(f)
+	return a.findBestPosition(p, f)
 }
 
 func (a *Atlas) isFitting(x int, w int, h int) bool {

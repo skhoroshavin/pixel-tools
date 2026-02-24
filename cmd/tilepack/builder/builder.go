@@ -12,9 +12,9 @@ import (
 	"pixel-tools/pkg/file/tsx"
 )
 
-func New() *Builder {
+func New(padding int) *Builder {
 	return &Builder{
-		tileset:  newTileRegistry(),
+		tileset:  newTileRegistry(padding),
 		tilemaps: make(map[string]*mapContext),
 	}
 }
@@ -77,9 +77,9 @@ type tileRegistry struct {
 	repackedSprites map[tileKey]tsx.GlobalTileID
 }
 
-func newTileRegistry() *tileRegistry {
+func newTileRegistry(padding int) *tileRegistry {
 	return &tileRegistry{
-		atlas: atlas.New(),
+		atlas: atlas.New(atlas.Config{Padding: padding}),
 
 		repackedTiles:   make(map[tileKey]tsx.GlobalTileID),
 		repackedSprites: make(map[tileKey]tsx.GlobalTileID),
@@ -111,7 +111,11 @@ func (r *tileRegistry) addSprite(tile *tsx.Tile) tsx.GlobalTileID {
 	}
 
 	data := convertTileData(tile)
-	r.atlas.AddSprite(fmt.Sprintf("%d", repackedTileID), tile.Data(), nil, data)
+	r.atlas.AddSprite(atlas.SpriteConfig{
+		Name:  fmt.Sprintf("%d", repackedTileID),
+		Image: tile.Data(),
+		Data:  data,
+	})
 	return repackedTileID
 }
 

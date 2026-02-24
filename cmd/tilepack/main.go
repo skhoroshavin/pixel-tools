@@ -1,6 +1,7 @@
 package main
 
 import (
+	"flag"
 	"fmt"
 	"log"
 	"os"
@@ -11,16 +12,27 @@ import (
 )
 
 func main() {
-	if len(os.Args) != 3 {
-		println("Usage: tilepack <input-dir> <output-dir>")
+	var padding int
+	flag.IntVar(&padding, "padding", 0, "padding between sprites in the atlas")
+	flag.Usage = func() {
+		_, _ = fmt.Fprintln(os.Stderr, "Usage: tilepack [options] <input-dir> <output-dir>")
+		flag.PrintDefaults()
+	}
+	flag.Parse()
+
+	if flag.NArg() != 2 {
+		flag.Usage()
 		os.Exit(1)
 	}
 
-	inputDir := os.Args[1]
-	outputDir := os.Args[2]
+	inputDir := flag.Arg(0)
+	outputDir := flag.Arg(1)
 
 	fmt.Println("Input directory:", inputDir)
 	fmt.Println("Output directory:", outputDir)
+	if padding > 0 {
+		fmt.Println("Padding:", padding)
+	}
 	if err := os.MkdirAll(outputDir, 0755); err != nil {
 		log.Fatalf("Failed to create output directory: %v", err)
 	}
@@ -30,7 +42,7 @@ func main() {
 		log.Fatalf("Failed to read input directory: %v", err)
 	}
 
-	b := builder.New()
+	b := builder.New(padding)
 	for _, entry := range entries {
 		if entry.IsDir() || !strings.HasSuffix(entry.Name(), ".tmx") {
 			continue

@@ -1,6 +1,7 @@
 package main
 
 import (
+	"flag"
 	"fmt"
 	"image"
 	"log"
@@ -14,21 +15,32 @@ import (
 )
 
 func main() {
-	if len(os.Args) != 3 {
-		println("Usage: fontpack <font-config> <output-dir>")
+	var padding int
+	flag.IntVar(&padding, "padding", 0, "padding between sprites in the atlas")
+	flag.Usage = func() {
+		_, _ = fmt.Fprintln(os.Stderr, "Usage: fontpack [options] <font-config> <output-dir>")
+		flag.PrintDefaults()
+	}
+	flag.Parse()
+
+	if flag.NArg() != 2 {
+		flag.Usage()
 		os.Exit(1)
 	}
 
-	fontConfigFile := os.Args[1]
-	outputDir := os.Args[2]
+	fontConfigFile := flag.Arg(0)
+	outputDir := flag.Arg(1)
 
 	fmt.Println("Input config:", fontConfigFile)
 	fmt.Println("Output directory:", outputDir)
+	if padding > 0 {
+		fmt.Println("Padding:", padding)
+	}
 	if err := os.MkdirAll(outputDir, 0755); err != nil {
 		log.Fatalf("Failed to create output directory: %v", err)
 	}
 
-	fa := NewFontAtlas()
+	fa := NewFontAtlas(padding)
 	for _, font := range config.Read(fontConfigFile) {
 		fa.AddFont(font)
 	}
@@ -39,9 +51,9 @@ func main() {
 	fa.SaveBMFonts(outputDir)
 }
 
-func NewFontAtlas() *FontAtlas {
+func NewFontAtlas(padding int) *FontAtlas {
 	return &FontAtlas{
-		atlas: atlas.New(),
+		atlas: atlas.New(atlas.Config{Padding: padding}),
 		fonts: make([]config.Font, 0),
 	}
 }
@@ -65,7 +77,7 @@ func (fa *FontAtlas) AddFont(font config.Font) {
 		for _, chr := range str {
 			glyphName := fmt.Sprintf("%s_%d", font.Name, chr)
 			glyphImg := img.SubImage(image.Rect(x*font.Size, y*font.Size, (x+1)*font.Size, (y+1)*font.Size))
-			glyph := fa.atlas.AddSprite(glyphName, glyphImg, nil, nil)
+			glyph := fa.atlas.AddSprite(atlas.SpriteConfig{Name: glyphName, Image: glyphImg, NineSlice: nil, Data: nil})
 			if glyph.Trimmed {
 				minYOffset = min(minYOffset, glyph.SpriteSourceSize.Y)
 				maxBottom = max(maxBottom, glyph.Frame.H+glyph.SpriteSourceSize.Y)

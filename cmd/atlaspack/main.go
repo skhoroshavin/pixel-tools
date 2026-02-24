@@ -1,6 +1,7 @@
 package main
 
 import (
+	"flag"
 	"fmt"
 	"image"
 	"log"
@@ -15,20 +16,31 @@ import (
 )
 
 func main() {
-	if len(os.Args) != 3 {
-		fmt.Fprintln(os.Stderr, "Usage: atlaspack <config-file> <output-base>")
+	var padding int
+	flag.IntVar(&padding, "padding", 0, "padding between sprites in the atlas")
+	flag.Usage = func() {
+		_, _ = fmt.Fprintln(os.Stderr, "Usage: atlaspack [options] <config-file> <output-base>")
+		flag.PrintDefaults()
+	}
+	flag.Parse()
+
+	if flag.NArg() != 2 {
+		flag.Usage()
 		os.Exit(1)
 	}
-	configFile := os.Args[1]
-	outputBase := os.Args[2]
+	configFile := flag.Arg(0)
+	outputBase := flag.Arg(1)
 
 	fmt.Println("Input config:", configFile)
 	fmt.Println("Output base:", outputBase)
+	if padding > 0 {
+		fmt.Println("Padding:", padding)
+	}
 	if err := os.MkdirAll(path.Dir(outputBase), 0755); err != nil {
 		log.Fatalf("Failed to create output directory: %v", err)
 	}
 
-	b := NewBuilder(filepath.Dir(configFile))
+	b := NewBuilder(filepath.Dir(configFile), padding)
 
 	for _, frame := range config.Read(configFile) {
 		b.AddFrame(&frame)
@@ -37,9 +49,9 @@ func main() {
 	b.Save(outputBase)
 }
 
-func NewBuilder(inputDir string) *Builder {
+func NewBuilder(inputDir string, padding int) *Builder {
 	return &Builder{
-		atlas:    atlas.New(),
+		atlas:    atlas.New(atlas.Config{Padding: padding}),
 		inputDir: inputDir,
 	}
 }
@@ -53,7 +65,11 @@ func (b *Builder) AddFrame(frame *config.Frame) {
 	img := b.loadImage(frame)
 
 	if frame.Spritesheet == nil {
-		b.atlas.AddSprite(frame.Name, img, frame.NineSlice, nil)
+		b.atlas.AddSprite(atlas.SpriteConfig{
+			Name:      frame.Name,
+			Image:     img,
+			NineSlice: frame.NineSlice,
+		})
 		return
 	}
 
@@ -61,7 +77,11 @@ func (b *Builder) AddFrame(frame *config.Frame) {
 
 	for _, sprite := range ss.UniqueSprites() {
 		name := frame.Name + sprite.Name
-		b.atlas.AddSprite(name, sprite.Image, frame.NineSlice, nil)
+		b.atlas.AddSprite(atlas.SpriteConfig{
+			Name:      name,
+			Image:     sprite.Image,
+			NineSlice: frame.NineSlice,
+		})
 	}
 
 	for _, ref := range ss.SpriteRefs() {
