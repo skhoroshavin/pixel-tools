@@ -1,0 +1,19 @@
+{
+  "name": "pixel-tools-pipeline-demo",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite --config vite/config.dev.mjs",
+    "build": "tsc && vite build --config vite/config.prod.mjs"
+  },
+  "devDependencies": {
+    "pixel-tools": "^0.8.18",
+    "typescript": "^5.9.3",
+    "vite": "^7.3.1"
+  },
+  "dependencies": {
+    "phaser": "^4.0.0-rc.6",
+    "terser": "^5.46.0"
+  }
+}
