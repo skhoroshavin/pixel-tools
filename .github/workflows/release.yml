@@ -7,7 +7,7 @@ on:
 
 jobs:
   publish-web:
-    name: Publish npm package and live demo
+    name: Publish npm package
     runs-on: ubuntu-latest
 
     permissions:
@@ -29,20 +29,6 @@ jobs:
 
       - name: Publish to npm
         run: npm publish
-
-      - name: Build phaser-example
-        working-directory: phaser-example
-        run: npm ci && npm run build
-
-      - name: Publish phaser-example to itch.io
-        uses: XanatosX/butler-publish-itchio-action@fb0a6f13954b75e8fbcfb703dbdb8626452efaba
-        env:
-          BUTLER_CREDENTIALS: ${{ secrets.BUTLER_API_KEY }}
-          CHANNEL: html5
-          ITCH_GAME: pixel-tools
-          ITCH_USER: skhoroshavin
-          PACKAGE: phaser-example/dist
-          VERSION: ${{ github.ref_name }}
 
   publish-binaries:
     name: Build and publish binaries
