@@ -5,10 +5,12 @@ import fs from 'fs';
 
 function assetPipeline() {
     atlaspack('sprites.yaml', 'sprites')
+    tilepack('tilemaps')
 }
 
 function fontpack(src, dst) { run('fontpack', src, dst) }
 function atlaspack(src, dst) { run('atlaspack', src, dst) }
+function tilepack(src, dst) { run('tilepack', src, dst) }
 
 function copy(src, dst) {
     const srcPath = path.join(rootDir, sourceAssetDir, src)
@@ -32,7 +34,6 @@ const packedAssetDir = 'public/packed_assets'
 export function runAssetPipeline() {
     console.log('Running asset pipeline...')
     try {
-        fs.rmSync(path.join(rootDir, packedAssetDir), { recursive: true, force: true })
         assetPipeline()
     } catch (error) {
         console.error('Asset pipeline failed:', error.message);

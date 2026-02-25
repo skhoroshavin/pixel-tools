@@ -1,4 +1,8 @@
-- name: hero
+- name: cat
+  image: 20250303demoChar01.png
+  spritesheet:
+    file: character.yaml
+- name: viking
   image: 20250303demoChar02.png
   spritesheet:
     file: character.yaml
