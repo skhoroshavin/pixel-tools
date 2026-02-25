@@ -243,12 +243,9 @@ for details on all available options.
 
 ### Code
 
-All tools are free to download and use for any purpose, including commercial
-projects. Full source code is available on GitHub under MPL 2.0 license, which
-means you're also free to modify and redistribute these tools - the main
-restriction is that if (and only if) you're redistributing modified versions,
-you must also provide source code of your modifications to your customers.
-See the file [LICENSE](LICENSE) for the full license text.
+All tools are free to download, use, modify, and redistribute for any purpose,
+including commercial projects. Full source code is available on GitHub under the
+[MIT license](LICENSE).
 
 ### Example art assets
 

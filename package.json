@@ -46,7 +46,7 @@
     "tiled"
   ],
   "author": "Sergei Khoroshavin",
-  "license": "MPL-2.0",
+  "license": "MIT",
   "devDependencies": {
     "@types/node": "^20.0.0",
     "tsup": "^8.5.1",
