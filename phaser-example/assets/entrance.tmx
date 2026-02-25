@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <map version="1.10" tiledversion="1.11.2" orientation="orthogonal" renderorder="right-down" width="12" height="12" tilewidth="32" tileheight="32" infinite="0" nextlayerid="5" nextobjectid="21">
- <tileset firstgid="1" source="../tilesets/wilderness.tsx"/>
+ <tileset firstgid="1" source="tilesets/wilderness.tsx"/>
  <layer id="1" name="Grass" width="12" height="12">
   <data encoding="csv">
 39,14,37,38,38,37,38,38,14,38,14,14,

@@ -1,5 +1,6 @@
 import { defineConfig } from 'vite';
-import { runAssetPipeline } from './asset-pipeline.mjs';
+import { processAssetsProd } from 'pixel-tools';
+import { assetsConfig } from "./assets.mjs";
 
 export default defineConfig({
     base: './',
@@ -26,16 +27,7 @@ export default defineConfig({
         port: 8080
     },
     plugins: [
-        {
-            name: 'asset-pipeline-runner',
-            buildStart() {
-                try {
-                    runAssetPipeline();
-                } catch (error) {
-                    process.exit(1);
-                }
-            }
-        },
+        processAssetsProd(assetsConfig),
         {
             name: 'build-notifications',
             buildStart() { console.log('Building application...') },

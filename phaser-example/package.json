@@ -1,14 +1,13 @@
 {
-  "name": "pixel-tools-pipeline-demo",
+  "name": "pixel-tools-phaser-example",
   "private": true,
   "version": "0.0.0",
-  "type": "module",
   "scripts": {
     "dev": "vite --config vite/config.dev.mjs",
     "build": "tsc && vite build --config vite/config.prod.mjs"
   },
   "devDependencies": {
-    "pixel-tools": "^0.8.18",
+    "pixel-tools": "file:..",
     "typescript": "^5.9.3",
     "vite": "^7.3.1"
   },
