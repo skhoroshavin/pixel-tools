@@ -9,6 +9,7 @@ export class GameScene extends Scene
 {
     preload() {
         this.load.setPath('packed_assets')
+        this.load.bitmapFont('mana_trunk', 'fonts.png', 'mana_trunk.bmfont')
         this.load.atlas(textureAtlas, textureAtlas+'.png', textureAtlas+'.atlas')
         this.load.atlas(textureTilemap, textureTilemap+'.png', textureTilemap+'.atlas')
         this.load.tilemapTiledJSON('entrance', 'entrance.tmj')
@@ -28,26 +29,37 @@ export class GameScene extends Scene
         }))
 
         const viking = this.createCharacter('viking')
+        const viking_start = map.findObject('Objects', obj => obj.name === 'viking_start')
+        const viking_end = map.findObject('Objects', obj => obj.name === 'viking_end')
         this.runSequence({
             sprite: viking,
             startAnim: 'walk_right',
-            startX: map.widthInPixels/8,
-            startY: 3*map.heightInPixels/4,
+            startX: viking_start?.x,
+            startY: viking_start?.y,
             endAnim: 'walk_left',
-            endX: map.widthInPixels/3,
-            endY: 3*map.heightInPixels/4,
+            endX: viking_end?.x,
+            endY: viking_end?.y,
         })
 
         const cat = this.createCharacter('cat')
+        const cat_start = map.findObject('Objects', obj => obj.name === 'cat_start')
+        const cat_end = map.findObject('Objects', obj => obj.name === 'cat_end')
         this.runSequence({
             sprite: cat,
             startAnim: 'walk_back',
-            startX: 4*map.widthInPixels/7,
-            startY: 5*map.heightInPixels/7,
+            startX: cat_start?.x,
+            startY: cat_start?.y,
             endAnim: 'walk_front',
-            endX: 4*map.widthInPixels/7,
-            endY: 4*map.heightInPixels/7,
+            endX: cat_end?.x,
+            endY: cat_end?.y,
         })
+
+        const text = map.findObject('Objects', obj => obj.name === 'text')
+        this.add.bitmapText(
+            text?.x ?? map.widthInPixels/2,
+            text?.y ?? map.heightInPixels/3,
+            'mana_trunk', 'Hello World!', 16)
+            .setOrigin(0.5)
 
         const camera = this.cameras.main
         camera.setZoom(2)
@@ -57,6 +69,7 @@ export class GameScene extends Scene
     private createCharacter(name: string) {
         const res = this.add.sprite(0, 0, textureAtlas, `${name}_idle_front`)
         res.name = name
+        res.setOrigin(0.5, 0.8)
 
         const availableAnims = res.texture.getFrameNames()
             .filter(f => f.startsWith(name))
@@ -83,11 +96,11 @@ export class GameScene extends Scene
     private runSequence(seq: {
         sprite: Phaser.GameObjects.Sprite,
         startAnim: string,
-        startX: number,
-        startY: number,
+        startX?: number,
+        startY?: number,
         endAnim: string,
-        endX: number,
-        endY: number,
+        endX?: number,
+        endY?: number,
     }) {
         seq.sprite.setPosition(seq.startX, seq.startY)
         const len = Phaser.Geom.Line.Length(new Line(seq.startX, seq.startY, seq.endX, seq.endY))

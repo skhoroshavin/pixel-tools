@@ -6,6 +6,7 @@ import fs from 'fs';
 function assetPipeline() {
     atlaspack('sprites.yaml', 'sprites')
     tilepack('tilemaps')
+    fontpack('fonts.yaml')
 }
 
 function fontpack(src, dst) { run('fontpack', src, dst) }

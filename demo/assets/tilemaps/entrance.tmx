@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.10" tiledversion="1.11.2" orientation="orthogonal" renderorder="right-down" width="12" height="12" tilewidth="32" tileheight="32" infinite="0" nextlayerid="5" nextobjectid="16">
+<map version="1.10" tiledversion="1.11.2" orientation="orthogonal" renderorder="right-down" width="12" height="12" tilewidth="32" tileheight="32" infinite="0" nextlayerid="5" nextobjectid="21">
  <tileset firstgid="1" source="../tilesets/wilderness.tsx"/>
  <layer id="1" name="Grass" width="12" height="12">
   <data encoding="csv">
@@ -58,5 +58,20 @@
   <object id="13" gid="3221225539" x="184" y="227" width="32" height="32"/>
   <object id="14" gid="1073741891" x="192" y="232" width="32" height="32"/>
   <object id="15" gid="2147483715" x="193" y="223" width="32" height="32"/>
+  <object id="16" name="viking_start" x="27" y="292">
+   <point/>
+  </object>
+  <object id="17" name="viking_end" x="139" y="288">
+   <point/>
+  </object>
+  <object id="18" name="cat_start" x="225" y="280">
+   <point/>
+  </object>
+  <object id="19" name="cat_end" x="271" y="223">
+   <point/>
+  </object>
+  <object id="20" name="text" x="274" y="154">
+   <point/>
+  </object>
  </objectgroup>
 </map>
