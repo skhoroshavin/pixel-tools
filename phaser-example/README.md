@@ -1,7 +1,7 @@
 # Phaser + pixel-tools example
 
 This project demonstrates how to integrate `pixel-tools` into a Phaser game development workflow using the Vite plugin.
-Also, a [live demo](https://phaser-pixel-tools.vercel.app/) is available.
+Also, a [live demo](https://pixel-tools-phaser-example.pages.dev) is available.
 
 ## Overview
 

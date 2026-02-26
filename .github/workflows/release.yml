@@ -39,7 +39,7 @@ jobs:
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          command: pages deploy phaser-example/dist --project-name=pixel-tools-phaser-example
+          command: pages deploy phaser-example/dist --project-name=pixel-tools-phaser-example --branch=main
 
   publish-binaries:
     name: Build and publish binaries
