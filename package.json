@@ -1,6 +1,6 @@
 {
   "name": "pixel-tools",
-  "version": "0.9.1",
+  "version": "0.9.2",
   "description": "A set of CLI tools useful for building pixel art asset pipelines for games, especially developed using Phaser",
   "bin": {
     "atlaspack": "scripts/wrapper.js",
