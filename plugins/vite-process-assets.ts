@@ -74,6 +74,20 @@ function runPipeline(config: AssetsConfig, rootDir: string): void {
         if (result.status !== 0) throw new Error(`${cmd} exited with code ${result.status}`)
     }
 
+    for (const entry of config.copy || []) {
+        const src = path.join(fullSourcePath, entry.source)
+        const dst = path.join(fullDestPath, entry.target ?? entry.source)
+        if (fs.statSync(src).isDirectory()) {
+            fs.cpSync(src, dst, { recursive: true })
+        } else {
+            const dstDir = path.dirname(dst)
+            if (!fs.existsSync(dstDir)) {
+                fs.mkdirSync(dstDir, { recursive: true })
+            }
+            fs.copyFileSync(src, dst)
+        }
+    }
+
     for (const font of config.fonts || []) {
         const target = font.target ?? path.dirname(font.source)
         run('fontpack', font.source, target)
