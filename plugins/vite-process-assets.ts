@@ -1,4 +1,4 @@
-import { execSync } from 'child_process';
+import { spawnSync } from 'child_process';
 import path from 'path';
 import fs from 'fs';
 import type { Plugin } from 'vite';
@@ -37,20 +37,20 @@ export function processAssetsDev(config: AssetsConfig): Plugin {
             const update = (filePath: string) => {
                 if (filePath.startsWith(path.resolve(root, config.destination_path))) return;
 
-                console.log(`Asset changed: ${filePath}`);
+                console.log(`Asset changed: ${filePath}`)
                 try {
-                    runPipeline(config, root);
-                    server.ws.send({ type: 'full-reload' });
+                    runPipeline(config, root)
+                    server.ws.send({ type: 'full-reload' })
                 } catch (error: any) {
-                    console.error('Asset pipeline update failed:', error.message);
+                    console.error('Asset pipeline update failed:', error.message)
                 }
-            };
+            }
 
-            server.watcher.on('change', update);
-            server.watcher.on('add', update);
-            server.watcher.on('unlink', update);
+            server.watcher.on('change', update)
+            server.watcher.on('add', update)
+            server.watcher.on('unlink', update)
         }
-    };
+    }
 }
 
 function runPipeline(config: AssetsConfig, rootDir: string): void {
@@ -58,29 +58,35 @@ function runPipeline(config: AssetsConfig, rootDir: string): void {
     const fullDestPath = path.resolve(rootDir, config.destination_path);
 
     if (!fs.existsSync(fullDestPath)) {
-        fs.mkdirSync(fullDestPath, { recursive: true });
+        fs.mkdirSync(fullDestPath, { recursive: true })
     }
 
-    const paddingArg = config.padding ? ` -padding ${config.padding}` : '';
     const run = (cmd: string, src: string, dst: string) => {
-        src = path.join(fullSourcePath, src);
-        dst = path.join(fullDestPath, dst)
-        execSync(`${cmd}${paddingArg} ${src} ${dst}`, { cwd: rootDir, stdio: 'inherit' });
+        const resolvedSrc = path.join(fullSourcePath, src)
+        const resolvedDst = path.join(fullDestPath, dst)
+        const args: string[] = []
+        if (config.padding) {
+            args.push('-padding', String(config.padding))
+        }
+        args.push(resolvedSrc, resolvedDst)
+        const result = spawnSync(cmd, args, { cwd: rootDir, stdio: 'inherit' })
+        if (result.error) throw result.error
+        if (result.status !== 0) throw new Error(`${cmd} exited with code ${result.status}`)
     }
 
     for (const font of config.fonts || []) {
-        font.target ??= path.dirname(font.source)
-        run('fontpack', font.source, font.target);
+        const target = font.target ?? path.dirname(font.source)
+        run('fontpack', font.source, target)
     }
 
     for (const atlas of config.atlases || []) {
-        const parsed = path.parse(atlas.source);
-        atlas.target ??= path.join(parsed.dir, parsed.name);
-        run('atlaspack', atlas.source, atlas.target);
+        const parsedSource = path.parse(atlas.source)
+        const target = atlas.target ?? path.join(parsedSource.dir, parsedSource.name)
+        run('atlaspack', atlas.source, target)
     }
 
     for (const tilemap of config.tilemaps || []) {
-        tilemap.target ??= tilemap.source
-        run('tilepack', tilemap.source, tilemap.target);
+        const target = tilemap.target ?? tilemap.source
+        run('tilepack', tilemap.source, target)
     }
 }

@@ -6,7 +6,6 @@ import (
 	"image"
 	"log"
 	"os"
-	"path"
 	"path/filepath"
 	"pixel-tools/cmd/fontpack/config"
 	"pixel-tools/pkg/atlas"
@@ -40,7 +39,7 @@ func main() {
 		log.Fatalf("Failed to create output directory: %v", err)
 	}
 
-	fa := NewFontAtlas(padding)
+	fa := NewFontAtlas(filepath.Dir(fontConfigFile), padding)
 	for _, font := range config.Read(fontConfigFile) {
 		fa.AddFont(font)
 	}
@@ -51,15 +50,17 @@ func main() {
 	fa.SaveBMFonts(outputDir)
 }
 
-func NewFontAtlas(padding int) *FontAtlas {
+func NewFontAtlas(inputDir string, padding int) *FontAtlas {
 	return &FontAtlas{
-		atlas: atlas.New(atlas.Config{Padding: padding}),
-		fonts: make([]config.Font, 0),
+		atlas:    atlas.New(atlas.Config{Padding: padding}),
+		inputDir: inputDir,
+		fonts:    make([]config.Font, 0),
 	}
 }
 
 type FontAtlas struct {
-	atlas *atlas.Atlas
+	atlas    *atlas.Atlas
+	inputDir string
 
 	fonts      []config.Font
 	bmfonts    []*bmfont.BMFont
@@ -67,7 +68,7 @@ type FontAtlas struct {
 }
 
 func (fa *FontAtlas) AddFont(font config.Font) {
-	img := png.Read(filepath.Join(filepath.Dir(os.Args[1]), font.Name+".png"))
+	img := png.Read(filepath.Join(fa.inputDir, font.Name+".png"))
 
 	minYOffset := font.Size
 	maxBottom := 0
@@ -81,6 +82,9 @@ func (fa *FontAtlas) AddFont(font config.Font) {
 			if glyph.Trimmed {
 				minYOffset = min(minYOffset, glyph.SpriteSourceSize.Y)
 				maxBottom = max(maxBottom, glyph.Frame.H+glyph.SpriteSourceSize.Y)
+			} else {
+				minYOffset = min(minYOffset, 0)
+				maxBottom = max(maxBottom, font.Size)
 			}
 			x++
 		}
@@ -128,7 +132,7 @@ func (fa *FontAtlas) Build() {
 func (fa *FontAtlas) SaveImage(filePath string) {
 	fa.atlas.SaveImage(filePath)
 	for _, bmf := range fa.bmfonts {
-		bmf.Pages.Page[0].File = path.Base(filePath)
+		bmf.Pages.Page[0].File = filepath.Base(filePath)
 	}
 }
 

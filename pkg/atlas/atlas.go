@@ -6,7 +6,7 @@ import (
 	"image/draw"
 	"log"
 	"os"
-	"path"
+	"path/filepath"
 	"pixel-tools/pkg/file/png"
 	"pixel-tools/pkg/imgutil"
 	"sort"
@@ -88,7 +88,7 @@ type SpriteConfig struct {
 	Data      map[string]any
 }
 
-func (a *Atlas) AddSprite(cfg SpriteConfig) *Frame {
+func (a *Atlas) AddSprite(cfg SpriteConfig) Frame {
 	a.spriteIndex[cfg.Name] = len(a.sprites)
 	if cfg.NineSlice != nil {
 		return a.addUntrimmed(cfg)
@@ -104,6 +104,17 @@ func (a *Atlas) AddSprite(cfg SpriteConfig) *Frame {
 
 	originalW := cfg.Image.Bounds().Dx()
 	originalH := cfg.Image.Bounds().Dy()
+
+	// Guard against fully transparent images
+	if left+right >= originalW {
+		left = originalW / 2
+		right = originalW / 2
+	}
+	if top+bottom >= originalH {
+		top = originalH / 2
+		bottom = originalH / 2
+	}
+
 	trimmedW := originalW - left - right
 	trimmedH := originalH - top - bottom
 
@@ -130,7 +141,7 @@ func (a *Atlas) AddSprite(cfg SpriteConfig) *Frame {
 		Image: cfg.Image,
 	}
 	a.sprites = append(a.sprites, res)
-	return &res
+	return res
 }
 
 func (a *Atlas) AddSpriteRef(name string, sourceName string, data map[string]any) {
@@ -185,7 +196,7 @@ func (a *Atlas) Pack() {
 
 func (a *Atlas) Save(baseName string) {
 	a.SaveImage(baseName + ".png")
-	a.SaveJSON(baseName+".atlas", path.Base(baseName)+".png")
+	a.SaveJSON(baseName+".atlas", filepath.Base(baseName)+".png")
 }
 
 func (a *Atlas) SaveImage(filePath string) {
@@ -240,7 +251,7 @@ func (a *Atlas) SaveJSON(filePath string, imagePath string) {
 	}
 }
 
-func (a *Atlas) addUntrimmed(cfg SpriteConfig) *Frame {
+func (a *Atlas) addUntrimmed(cfg SpriteConfig) Frame {
 	res := Frame{
 		frame: frame{
 			Name: cfg.Name,
@@ -254,7 +265,7 @@ func (a *Atlas) addUntrimmed(cfg SpriteConfig) *Frame {
 		Image: cfg.Image,
 	}
 	a.sprites = append(a.sprites, res)
-	return &res
+	return res
 }
 
 func (a *Atlas) setSkyline(level int) {

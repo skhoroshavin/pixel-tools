@@ -7,7 +7,6 @@ import (
 	"log"
 	"maps"
 	"os"
-	"path"
 	"path/filepath"
 	"pixel-tools/cmd/atlaspack/config"
 	"pixel-tools/pkg/atlas"
@@ -36,7 +35,7 @@ func main() {
 	if padding > 0 {
 		fmt.Println("Padding:", padding)
 	}
-	if err := os.MkdirAll(path.Dir(outputBase), 0755); err != nil {
+	if err := os.MkdirAll(filepath.Dir(outputBase), 0755); err != nil {
 		log.Fatalf("Failed to create output directory: %v", err)
 	}
 

@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"log"
 	"os"
-	"path"
 	"path/filepath"
 	"pixel-tools/pkg/atlas"
 	"pixel-tools/pkg/file/tmj"
@@ -239,7 +238,7 @@ func (m *mapContext) useSprite(tileID tsx.GlobalTileID) tsx.GlobalTileID {
 }
 
 func (m *mapContext) save(outputDir string, exportName string) {
-	outputTmj := path.Join(outputDir, exportName+".tmj")
+	outputTmj := filepath.Join(outputDir, exportName+".tmj")
 
 	tileset := m.tileset.buildTileset(m.usedTiles)
 	m.tilemap.Tilesets = []*tsx.Tileset{tileset}
