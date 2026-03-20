@@ -203,6 +203,7 @@ jobs:
             dist/pixel-tools-linux/pixel-tools-linux.zip \
             dist/pixel-tools-mac-intel/pixel-tools-mac-intel.zip \
             dist/pixel-tools-mac-m1/pixel-tools-mac-m1.zip \
+            --repo "${{ github.repository }}" \
             --generate-notes
 
   publish-itch:
