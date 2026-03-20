@@ -112,7 +112,7 @@ jobs:
         env:
           APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
         run: |
-          IDENTITY="Developer ID Application: Sergey Khoroshavin ($APPLE_TEAM_ID)"
+          IDENTITY="Developer ID Application: Sergei Khoroshavin ($APPLE_TEAM_ID)"
           for binary in bin/*; do
             echo "Signing $binary..."
             codesign --force --options runtime \
