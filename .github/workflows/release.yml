@@ -174,22 +174,36 @@ jobs:
     needs: build-binaries
     runs-on: ubuntu-latest
 
+    permissions:
+      contents: write
+      id-token: write
+      attestations: write
+
     steps:
       - name: Download all artifacts
         uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
         with:
           path: dist
 
-      - name: Publish to GitHub
-        uses: softprops/action-gh-release@de2c0eb89ae2a093876385947365aca7b0e5f844 # v1
+      - name: Attest build provenance
+        uses: actions/attest-build-provenance@a2bbfa25375fe432b6a289bc6b6cd05ecd0c4c32 # v4.1.0
         with:
-          files: |
+          subject-path: |
             dist/pixel-tools-windows/pixel-tools-windows.zip
             dist/pixel-tools-linux/pixel-tools-linux.zip
             dist/pixel-tools-mac-intel/pixel-tools-mac-intel.zip
             dist/pixel-tools-mac-m1/pixel-tools-mac-m1.zip
+
+      - name: Publish to GitHub
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh release create "${{ github.ref_name }}" \
+            dist/pixel-tools-windows/pixel-tools-windows.zip \
+            dist/pixel-tools-linux/pixel-tools-linux.zip \
+            dist/pixel-tools-mac-intel/pixel-tools-mac-intel.zip \
+            dist/pixel-tools-mac-m1/pixel-tools-mac-m1.zip \
+            --generate-notes
 
   publish-itch:
     name: Publish to itch.io (${{ matrix.os }})
