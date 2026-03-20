@@ -59,12 +59,12 @@ jobs:
             goarch: amd64
             binary_suffix: ''
           - os: mac-intel
-            runner: macos-13
+            runner: macos-15
             goos: darwin
             goarch: amd64
             binary_suffix: ''
           - os: mac-m1
-            runner: macos-14
+            runner: macos-15
             goos: darwin
             goarch: arm64
             binary_suffix: ''
