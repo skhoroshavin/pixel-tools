@@ -42,16 +42,32 @@ jobs:
           command: pages deploy phaser-example/dist --project-name=pixel-tools-phaser-example --branch=main
 
   publish-binaries:
-    name: Build and publish binaries
-    runs-on: ubuntu-latest
+    name: Build and publish binaries (${{ matrix.os }})
+    runs-on: ${{ matrix.runner }}
 
     strategy:
       matrix:
-        os:
-          - windows
-          - linux
-          - mac-intel
-          - mac-m1
+        include:
+          - os: windows
+            runner: ubuntu-latest
+            goos: windows
+            goarch: amd64
+            binary_suffix: .exe
+          - os: linux
+            runner: ubuntu-latest
+            goos: linux
+            goarch: amd64
+            binary_suffix: ''
+          - os: mac-intel
+            runner: macos-13
+            goos: darwin
+            goarch: amd64
+            binary_suffix: ''
+          - os: mac-m1
+            runner: macos-14
+            goos: darwin
+            goarch: arm64
+            binary_suffix: ''
 
     steps:
       - name: Checkout
@@ -64,20 +80,45 @@ jobs:
 
       - name: Build binaries
         env:
-          OS: ${{ matrix.os }}
-          GOOS: ${{ matrix.os }}
-          GOARCH: amd64
-        run: |
-          if [ "${OS}" = "mac-intel" ]; then
-            export GOOS="darwin"
-          elif [ "${OS}" = "mac-m1" ]; then
-            export GOOS="darwin"
-            export GOARCH="arm64"
-          elif [ "${OS}" = "windows" ]; then
-            export BINARY_SUFFIX=".exe"
-          fi
+          GOOS: ${{ matrix.goos }}
+          GOARCH: ${{ matrix.goarch }}
+          BINARY_SUFFIX: ${{ matrix.binary_suffix }}
+        run: make build
 
-          make build
+      - name: Import Apple certificate
+        if: matrix.goos == 'darwin'
+        env:
+          APPLE_CERTIFICATE_BASE64: ${{ secrets.APPLE_CERTIFICATE_BASE64 }}
+          APPLE_CERTIFICATE_PASSWORD: ${{ secrets.APPLE_CERTIFICATE_PASSWORD }}
+        run: |
+          CERTIFICATE_PATH="$RUNNER_TEMP/build_certificate.p12"
+          KEYCHAIN_PATH="$RUNNER_TEMP/app-signing.keychain-db"
+          KEYCHAIN_PASSWORD="$(openssl rand -base64 32)"
+
+          echo -n "$APPLE_CERTIFICATE_BASE64" | base64 --decode -o "$CERTIFICATE_PATH"
+
+          security create-keychain -p "$KEYCHAIN_PASSWORD" "$KEYCHAIN_PATH"
+          security set-keychain-settings -lut 21600 "$KEYCHAIN_PATH"
+          security unlock-keychain -p "$KEYCHAIN_PASSWORD" "$KEYCHAIN_PATH"
+
+          security import "$CERTIFICATE_PATH" -P "$APPLE_CERTIFICATE_PASSWORD" \
+            -A -t cert -f pkcs12 -k "$KEYCHAIN_PATH"
+          security set-key-partition-list -S apple-tool:,apple: \
+            -k "$KEYCHAIN_PASSWORD" "$KEYCHAIN_PATH"
+          security list-keychains -d user -s "$KEYCHAIN_PATH" login.keychain-db
+
+      - name: Sign macOS binaries
+        if: matrix.goos == 'darwin'
+        env:
+          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+        run: |
+          IDENTITY="Developer ID Application: Sergey Khoroshavin ($APPLE_TEAM_ID)"
+          for binary in bin/*; do
+            echo "Signing $binary..."
+            codesign --force --options runtime \
+              --sign "$IDENTITY" --timestamp "$binary"
+            codesign --verify --verbose "$binary"
+          done
 
       - name: Package binaries
         env:
@@ -100,6 +141,20 @@ jobs:
           zip -r ${OUTPUT_NAME}.zip ${OUTPUT_NAME}/
           cd ..
 
+      - name: Notarize macOS package
+        if: matrix.goos == 'darwin'
+        env:
+          APPLE_ID: ${{ secrets.APPLE_ID }}
+          APPLE_ID_PASSWORD: ${{ secrets.APPLE_ID_PASSWORD }}
+          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+          OS: ${{ matrix.os }}
+        run: |
+          xcrun notarytool submit "dist/pixel-tools-${OS}.zip" \
+            --apple-id "$APPLE_ID" \
+            --password "$APPLE_ID_PASSWORD" \
+            --team-id "$APPLE_TEAM_ID" \
+            --wait
+
       - name: Publish to GitHub
         uses: softprops/action-gh-release@de2c0eb89ae2a093876385947365aca7b0e5f844 # v1
         with:
@@ -116,3 +171,11 @@ jobs:
           ITCH_USER: skhoroshavin
           PACKAGE: dist/pixel-tools-${{ matrix.os }}.zip
           VERSION: ${{ github.ref_name }}
+
+      - name: Clean up keychain
+        if: always() && matrix.goos == 'darwin'
+        run: |
+          KEYCHAIN_PATH="$RUNNER_TEMP/app-signing.keychain-db"
+          CERTIFICATE_PATH="$RUNNER_TEMP/build_certificate.p12"
+          security delete-keychain "$KEYCHAIN_PATH" 2>/dev/null || true
+          rm -f "$CERTIFICATE_PATH"
