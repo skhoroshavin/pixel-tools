@@ -41,8 +41,8 @@ jobs:
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           command: pages deploy phaser-example/dist --project-name=pixel-tools-phaser-example --branch=main
 
-  publish-binaries:
-    name: Build and publish binaries (${{ matrix.os }})
+  build-binaries:
+    name: Build binaries (${{ matrix.os }})
     runs-on: ${{ matrix.runner }}
 
     strategy:
@@ -155,12 +155,61 @@ jobs:
             --team-id "$APPLE_TEAM_ID" \
             --wait
 
+      - name: Upload artifact
+        uses: actions/upload-artifact@ea165f8d65b6db9a6b7c67862cd61e31b2b2d155 # v3
+        with:
+          name: pixel-tools-${{ matrix.os }}
+          path: dist/pixel-tools-${{ matrix.os }}.zip
+
+      - name: Clean up keychain
+        if: always() && matrix.goos == 'darwin'
+        run: |
+          KEYCHAIN_PATH="$RUNNER_TEMP/app-signing.keychain-db"
+          CERTIFICATE_PATH="$RUNNER_TEMP/build_certificate.p12"
+          security delete-keychain "$KEYCHAIN_PATH" 2>/dev/null || true
+          rm -f "$CERTIFICATE_PATH"
+
+  publish-github:
+    name: Publish to GitHub
+    needs: build-binaries
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Download all artifacts
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v3
+        with:
+          path: dist
+
       - name: Publish to GitHub
         uses: softprops/action-gh-release@de2c0eb89ae2a093876385947365aca7b0e5f844 # v1
         with:
-          files: dist/pixel-tools-${{ matrix.os }}.zip
+          files: |
+            dist/pixel-tools-windows/pixel-tools-windows.zip
+            dist/pixel-tools-linux/pixel-tools-linux.zip
+            dist/pixel-tools-mac-intel/pixel-tools-mac-intel.zip
+            dist/pixel-tools-mac-m1/pixel-tools-mac-m1.zip
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  publish-itch:
+    name: Publish to itch.io (${{ matrix.os }})
+    needs: build-binaries
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        os:
+          - windows
+          - linux
+          - mac-intel
+          - mac-m1
+
+    steps:
+      - name: Download artifact
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v3
+        with:
+          name: pixel-tools-${{ matrix.os }}
+          path: dist
 
       - name: Publish to itch.io
         uses: XanatosX/butler-publish-itchio-action@fb0a6f13954b75e8fbcfb703dbdb8626452efaba
@@ -171,11 +220,3 @@ jobs:
           ITCH_USER: skhoroshavin
           PACKAGE: dist/pixel-tools-${{ matrix.os }}.zip
           VERSION: ${{ github.ref_name }}
-
-      - name: Clean up keychain
-        if: always() && matrix.goos == 'darwin'
-        run: |
-          KEYCHAIN_PATH="$RUNNER_TEMP/app-signing.keychain-db"
-          CERTIFICATE_PATH="$RUNNER_TEMP/build_certificate.p12"
-          security delete-keychain "$KEYCHAIN_PATH" 2>/dev/null || true
-          rm -f "$CERTIFICATE_PATH"
